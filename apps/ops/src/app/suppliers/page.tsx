@@ -62,7 +62,7 @@ export default async function SuppliersPage() {
                       </td>
                     </tr>
                   ) : (
-                    suppliers.map((supp) => (
+                    suppliers.map((supp: any) => (
                       <tr key={supp.id} className="hover:bg-gray-50/40 transition-colors">
                         <td className="px-6 py-4 font-bold text-gray-900">{supp.name}</td>
                         <td className="px-6 py-4 text-gray-500 font-medium flex items-center gap-1.5 py-5">

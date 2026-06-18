@@ -47,7 +47,7 @@ export default async function PackingPage() {
     },
   });
 
-  const orders = fetchedOrders.map((ord) => ({
+  const orders = fetchedOrders.map((ord: any) => ({
     ...ord,
     customer: {
       ...ord.customer,
