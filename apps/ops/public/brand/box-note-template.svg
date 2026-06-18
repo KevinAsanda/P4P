@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 300 200" width="100%" height="100%">
+  <!-- Card Background -->
+  <rect x="10" y="10" width="280" height="180" rx="10" fill="#FFFFFF" stroke="#F8C83E" stroke-width="4" />
+  
+  <!-- Dashed inner border -->
+  <rect x="18" y="18" width="264" height="164" rx="6" fill="none" stroke="#C4A344" stroke-width="1.5" stroke-dasharray="4,4" />
+  
+  <!-- Text Content -->
+  <text x="150" y="55" font-family="'Libre Franklin', sans-serif" font-weight="900" font-size="16" fill="#000000" text-anchor="middle">
+    THANK YOU!
+  </text>
+  
+  <text x="150" y="85" font-family="'Libre Franklin', sans-serif" font-weight="normal" font-size="12" fill="#4B5563" text-anchor="middle">
+    Your stationery pack was
+  </text>
+  <text x="150" y="105" font-family="'Libre Franklin', sans-serif" font-weight="bold" font-size="14" fill="#008080" text-anchor="middle">
+    Prepped with Love
+  </text>
+  <text x="150" y="125" font-family="'Libre Franklin', sans-serif" font-weight="normal" font-size="12" fill="#4B5563" text-anchor="middle">
+    by Prepped 4 Prep!
+  </text>
+  
+  <!-- Heart decoration (Brand Vermillion Red) -->
+  <path d="M150 145 C145 138 135 138 135 145 C135 152 150 160 150 160 C150 160 165 152 165 145 C165 138 155 138 150 145 Z" fill="#E03C31" />
+</svg>

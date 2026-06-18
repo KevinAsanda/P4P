@@ -1,0 +1,14 @@
+@theme {
+  --color-papaya: #F8C83E;
+  --color-papaya-light: #FCE7A5;
+  --color-papaya-dark: #E0B020;
+  --color-caramel: #C4A344;
+  --color-caramel-light: #DCC37E;
+  --color-caramel-dark: #A68630;
+  --color-vermillion: #E03C31;
+  --color-vermillion-light: #EB756E;
+  --color-vermillion-dark: #B82218;
+  --color-jetblack: #000000;
+  --color-purewhite: #FFFFFF;
+  --font-sans: var(--font-libre-franklin), "Libre Franklin", sans-serif;
+}

@@ -1,0 +1,32 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 200" width="100%" height="100%">
+  <!-- Eraser (Pink) -->
+  <path d="M30 25 C30 10, 70 10, 70 25 Z" fill="#F43F5E" />
+  
+  <!-- Eraser Band (Metal) -->
+  <rect x="30" y="25" width="40" height="15" fill="#94A3B8" />
+  <rect x="30" y="30" width="40" height="5" fill="#64748B" />
+
+  <!-- Pencil Body (Brand Papaya Orange) -->
+  <rect x="30" y="40" width="40" height="100" fill="#F8C83E" rx="2" />
+  
+  <!-- Pencil Stripes -->
+  <rect x="40" y="40" width="8" height="100" fill="#E2B22B" />
+  <rect x="52" y="40" width="8" height="100" fill="#E2B22B" />
+  
+  <!-- Pencil Tip (Wood) -->
+  <polygon points="30,140 70,140 50,175" fill="#FED7AA" />
+  
+  <!-- Lead (Graphite) -->
+  <polygon points="45,166 55,166 50,175" fill="#1E293B" />
+  
+  <!-- Eyes -->
+  <circle cx="42" cy="75" r="4" fill="#000000" />
+  <circle cx="58" cy="75" r="4" fill="#000000" />
+  
+  <!-- Smile -->
+  <path d="M45 85 Q50 92 55 85" stroke="#000000" stroke-width="2.5" fill="none" stroke-linecap="round" />
+  
+  <!-- Blush -->
+  <circle cx="38" cy="80" r="2" fill="#F43F5E" opacity="0.6" />
+  <circle cx="62" cy="80" r="2" fill="#F43F5E" opacity="0.6" />
+</svg>

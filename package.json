@@ -1,0 +1,20 @@
+{
+  "name": "prepped4prep",
+  "private": true,
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev:customer": "pnpm --filter @p4p/customer dev",
+    "dev:ops": "pnpm --filter @p4p/ops dev",
+    "build": "pnpm -r build",
+    "db:generate": "pnpm --filter @p4p/db db:generate",
+    "db:push": "pnpm --filter @p4p/db db:push",
+    "db:seed": "pnpm --filter @p4p/db seed",
+    "test": "playwright test"
+  },
+  "devDependencies": {
+    "@playwright/test": "^1.61.0",
+    "typescript": "^5.4.5"
+  }
+}

@@ -1,0 +1,154 @@
+datasource db {
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
+}
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+model Customer {
+  id              String       @id @default(uuid())
+  firstName       String
+  lastName        String
+  email           String       @unique
+  phone           String?
+  deliveryAddress String?
+  consentFlag     DateTime?    // Timestamp of POPIA opt-in consent
+  createdAt       DateTime     @default(now())
+  
+  students        Student[]
+  orders          SalesOrder[]
+}
+
+model Student {
+  id           String       @id @default(uuid())
+  customerId   String
+  schoolId     String
+  firstName    String
+  lastName     String
+  gradeLevel   String
+  academicYear Int
+  
+  customer     Customer     @relation(fields: [customerId], references: [id], onDelete: Cascade)
+  school       School       @relation(fields: [schoolId], references: [id])
+  orders       SalesOrder[]
+}
+
+model School {
+  id            String           @id @default(uuid())
+  name          String
+  region        String
+  contactPerson String?
+  isActive      Boolean          @default(true)
+  
+  students      Student[]
+  templates     SchoolTemplate[]
+}
+
+model SchoolTemplate {
+  id           String         @id @default(uuid())
+  schoolId     String
+  name         String
+  gradeLevel   String
+  academicYear Int
+  isActive     Boolean        @default(true)
+  lastUpdated  DateTime       @updatedAt
+  
+  school       School         @relation(fields: [schoolId], references: [id])
+  lines        TemplateLine[]
+}
+
+model TemplateLine {
+  id               String         @id @default(uuid())
+  templateId       String
+  productId        String
+  quantityRequired Int
+  isOptional       Boolean        @default(false)
+  displayOrder     Int            @default(0)
+  
+  template         SchoolTemplate @relation(fields: [templateId], references: [id], onDelete: Cascade)
+  product          Product        @relation(fields: [productId], references: [id])
+}
+
+model Product {
+  id               String         @id @default(uuid())
+  supplierId       String?
+  itemName         String
+  sku              String         @unique
+  brand            String?
+  unitPrice        Decimal        @db.Decimal(10, 2)
+  qtyOnHand        Int            @default(0)
+  reorderThreshold Int            @default(0)
+  category         String         // e.g. "Stationery", "Service"
+  
+  supplier         Supplier?      @relation(fields: [supplierId], references: [id])
+  templateLines    TemplateLine[]
+  orderLines       OrderLine[]
+}
+
+model Supplier {
+  id                  String    @id @default(uuid())
+  name                String
+  contactName         String?
+  phone               String?
+  email               String?
+  averageLeadTimeDays Int?
+  
+  products            Product[]
+}
+
+model SalesOrder {
+  id                   String       @id @default(uuid())
+  customerId           String
+  studentId            String?
+  orderDate            DateTime     @default(now())
+  totalAmount          Decimal      @db.Decimal(10, 2)
+  paymentStatus        String       @default("pending") // e.g. "pending", "paid", "failed"
+  fulfillmentStatus    String       @default("pending") // e.g. "pending", "packing", "packed", "dispatched", "delivered"
+  packedByStaffId      String?
+  notes                String?
+  quickbooksInvoiceId  String?
+  quickbooksSyncStatus String       @default("pending") // e.g. "pending", "synced", "failed"
+  
+  customer             Customer     @relation(fields: [customerId], references: [id])
+  student              Student?     @relation(fields: [studentId], references: [id])
+  orderLines           OrderLine[]
+  delivery             Delivery?
+}
+
+model OrderLine {
+  id              String     @id @default(uuid())
+  orderId         String
+  productId       String
+  quantityOrdered Int
+  unitPriceAtSale Decimal    @db.Decimal(10, 2)
+  lineSubTotal    Decimal    @db.Decimal(10, 2)
+  isPacked        Boolean    @default(false)
+  
+  order           SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+  product         Product    @relation(fields: [productId], references: [id])
+}
+
+model Delivery {
+  id                  String     @id @default(uuid())
+  orderId             String     @unique
+  deliveryMethod      String     // e.g. "delivery", "collection"
+  scheduledDate       DateTime?
+  actualDate          DateTime?
+  driverId            String?
+  proofOfDeliveryUrl  String?
+  
+  order               SalesOrder @relation(fields: [orderId], references: [id], onDelete: Cascade)
+}
+
+model AuditLog {
+  id        String   @id @default(uuid())
+  staffId   String
+  role      String
+  action    String
+  targetId  String?
+  details   String?
+  timestamp DateTime @default(now())
+}
