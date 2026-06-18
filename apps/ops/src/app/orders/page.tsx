@@ -47,7 +47,7 @@ export default async function OrdersPage({ searchParams }: PageProps) {
     },
   });
 
-  const orders = fetchedOrders.map((ord) => ({
+  const orders = fetchedOrders.map((ord: any) => ({
     ...ord,
     customer: {
       ...ord.customer,
@@ -154,7 +154,7 @@ export default async function OrdersPage({ searchParams }: PageProps) {
                     </td>
                   </tr>
                 ) : (
-                  orders.map((ord) => (
+                  orders.map((ord: any) => (
                     <tr key={ord.id} className="hover:bg-gray-50/40 transition-colors">
                       <td className="px-6 py-4 font-bold text-gray-900">
                         <span className="font-mono text-xs block text-gray-500 leading-tight">

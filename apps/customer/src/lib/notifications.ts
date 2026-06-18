@@ -218,7 +218,7 @@ export async function sendOrderReceivedEmail(orderId: string) {
 
     // Build items checklist table
     let manifestRows = '';
-    order.orderLines.forEach((line) => {
+    order.orderLines.forEach((line: any) => {
       manifestRows += `
         <tr>
           <td>${line.product.itemName}</td>

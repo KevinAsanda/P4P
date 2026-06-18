@@ -62,7 +62,7 @@ export default async function SchoolsPage() {
                       </td>
                     </tr>
                   ) : (
-                    schools.map((school) => (
+                    schools.map((school: any) => (
                       <tr key={school.id} className="hover:bg-gray-50/40 transition-colors">
                         <td className="px-6 py-4 font-bold text-gray-900 flex items-center gap-2">
                           <Landmark className="h-4 w-4 text-gray-400" />

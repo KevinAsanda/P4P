@@ -76,7 +76,7 @@ export default async function TemplatesPage() {
                       </td>
                     </tr>
                   ) : (
-                    templates.map((tpl) => (
+                    templates.map((tpl: any) => (
                       <tr key={tpl.id} className="hover:bg-gray-50/40 transition-colors">
                         <td className="px-6 py-4 font-bold text-gray-900 flex items-center gap-2 py-5">
                           <BookOpen className="h-4 w-4 text-gray-400" />
@@ -116,7 +116,7 @@ export default async function TemplatesPage() {
                   className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-papaya focus:bg-white focus:outline-none"
                 >
                   <option value="">-- Choose active school --</option>
-                  {schools.map((s) => (
+                  {schools.map((s: any) => (
                     <option key={s.id} value={s.id}>
                       {s.name}
                     </option>

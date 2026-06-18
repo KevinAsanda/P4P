@@ -63,7 +63,7 @@ export async function POST(request: NextRequest) {
 
     if (paymentStatus === 'COMPLETE') {
       // Execute transactionally
-      await prisma.$transaction(async (tx) => {
+      await prisma.$transaction(async (tx: any) => {
         const order = await tx.salesOrder.findUnique({
           where: { id: orderId },
           include: { orderLines: true },
