@@ -28,7 +28,7 @@ export async function POST(request: NextRequest) {
 
     // 3. Load active database products catalog for matching context
     const products = await prisma.product.findMany();
-    const catalogBrief = products.map((p) => ({
+    const catalogBrief = products.map((p: any) => ({
       id: p.id,
       name: p.itemName,
       brand: p.brand || "N/A",

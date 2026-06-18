@@ -12,7 +12,7 @@ export default async function ListImportPage() {
 
   // Fetch product catalog to map matching items, substitutions, and upsells on-screen
   const products = await prisma.product.findMany();
-  const formattedProducts = products.map((p) => ({
+  const formattedProducts = products.map((p: any) => ({
     id: p.id,
     itemName: p.itemName,
     brand: p.brand || 'Generic',
