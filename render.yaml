@@ -3,8 +3,7 @@ services:
     name: p4p-customer
     plan: free
     runtime: node
-    buildCommand: pnpm install && pnpm --filter @p4p/shared build && pnpm --filter @p4p/db build && pnpm --filter @p4p/customer build
-    preDeployCommand: pnpm --filter @p4p/db db:push
+    buildCommand: pnpm install && pnpm --filter @p4p/shared build && pnpm --filter @p4p/db build && pnpm --filter @p4p/customer build && pnpm --filter @p4p/db db:push
     startCommand: pnpm --filter @p4p/customer start
     envVars:
       - key: NODE_VERSION
