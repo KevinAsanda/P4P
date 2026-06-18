@@ -102,7 +102,7 @@ export async function POST(request: NextRequest) {
       // Find products in our seeded catalog by name keyword
       const findProductByKeyword = (kw: string) => {
         return catalogBrief.find(
-          (p) =>
+          (p: any) =>
             p.name.toLowerCase().includes(kw) && p.category === "Stationery",
         );
       };
@@ -117,12 +117,12 @@ export async function POST(request: NextRequest) {
 
       // We can also find generic cheaper options if available
       const genericPencil = catalogBrief.find(
-        (p) =>
+        (p: any) =>
           p.name.toLowerCase().includes("pencil") &&
           p.brand?.toLowerCase().includes("generic"),
       );
       const brandedPencil = catalogBrief.find(
-        (p) =>
+        (p: any) =>
           p.name.toLowerCase().includes("pencil") &&
           p.brand &&
           !p.brand.toLowerCase().includes("generic"),
@@ -163,7 +163,7 @@ export async function POST(request: NextRequest) {
       if (parsedItems.length === 0) {
         // Just take the first 3 stationery items in the catalog
         const items = catalogBrief
-          .filter((p) => p.category === "Stationery")
+          .filter((p: any) => p.category === "Stationery")
           .slice(0, 3);
         items.forEach((item, idx) => {
           parsedItems.push({
@@ -198,11 +198,11 @@ export async function POST(request: NextRequest) {
 
       // Add upsell service recommendations (e.g. Book Covering service)
       const bookCoveringService = catalogBrief.find(
-        (p) =>
+        (p: any) =>
           p.category === "Service" && p.name.toLowerCase().includes("covering"),
       );
       const labelingService = catalogBrief.find(
-        (p) =>
+        (p: any) =>
           p.category === "Service" && p.name.toLowerCase().includes("label"),
       );
 
