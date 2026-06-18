@@ -1,6 +1,7 @@
 services:
   - type: web
     name: p4p-customer
+    plan: free
     runtime: node
     buildCommand: pnpm install && pnpm --filter @p4p/shared build && pnpm --filter @p4p/db build && pnpm --filter @p4p/customer build
     preDeployCommand: pnpm --filter @p4p/db db:push
@@ -35,6 +36,7 @@ services:
 
   - type: web
     name: p4p-ops
+    plan: free
     runtime: node
     buildCommand: pnpm install && pnpm --filter @p4p/shared build && pnpm --filter @p4p/db build && pnpm --filter @p4p/ops build
     startCommand: pnpm --filter @p4p/ops start
