@@ -217,7 +217,7 @@ export async function updateOrderLinePacked(orderLineId: string, isPacked: boole
   await writeAuditLog('UPDATE_ORDER_LINE_PACKED', orderLineId, `isPacked: ${isPacked}, OrderId: ${line.orderId}`);
 
   // Check if all lines are now packed
-  const allPacked = line.order.orderLines.every((l) => l.isPacked);
+  const allPacked = line.order.orderLines.every((l: any) => l.isPacked);
   if (allPacked && line.order.fulfillmentStatus !== 'packed') {
     await prisma.salesOrder.update({
       where: { id: line.order.id },
