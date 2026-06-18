@@ -258,6 +258,9 @@ async function main() {
 
   const now = Date.now();
 
+  const productsMap = new Map(productsData.map(p => [p.id, p]));
+  const customersMap = new Map(mockCustomers.map(c => [c.id, c]));
+
   for (const ord of ordersDetails) {
     const orderDate = new Date(now - ord.monthsAgo * 30 * 24 * 60 * 60 * 1000);
 
@@ -266,7 +269,7 @@ async function main() {
     const linesToInsert = [];
 
     for (const item of ord.items) {
-      const prod = productsData.find(p => p.id === item.prodId)!;
+      const prod = productsMap.get(item.prodId)!;
       const subtotal = prod.unitPrice * item.qty;
       total += subtotal;
 
@@ -309,7 +312,7 @@ async function main() {
     }
 
     // Insert Delivery record
-    const customerObj = mockCustomers.find(c => c.id === ord.customerId)!;
+    const customerObj = customersMap.get(ord.customerId)!;
     await prisma.delivery.create({
       data: {
         orderId: ord.orderId,
