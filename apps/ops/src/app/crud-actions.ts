@@ -1,6 +1,6 @@
 'use server';
 
-import { prisma } from '@p4p/db';
+import { prisma, type OrderLine } from '@p4p/db';
 import { getActiveRole } from '@/lib/auth-utils';
 import { revalidatePath } from 'next/cache';
 import { sendOrderPackedEmail, sendOrderDispatchedEmail, sendOrderDeliveredEmail } from '@/lib/notifications';
@@ -217,7 +217,7 @@ export async function updateOrderLinePacked(orderLineId: string, isPacked: boole
   await writeAuditLog('UPDATE_ORDER_LINE_PACKED', orderLineId, `isPacked: ${isPacked}, OrderId: ${line.orderId}`);
 
   // Check if all lines are now packed
-  const allPacked = line.order.orderLines.every((l: any) => l.isPacked);
+  const allPacked = line.order.orderLines.every((l: OrderLine) => l.isPacked);
   if (allPacked && line.order.fulfillmentStatus !== 'packed') {
     await prisma.salesOrder.update({
       where: { id: line.order.id },

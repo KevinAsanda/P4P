@@ -65,9 +65,9 @@ export default async function OverviewPage() {
       });
 
       topSchools = schools
-        .map((school) => {
+        .map((school: any) => {
           const studentCount = school.students.length;
-          const orderCount = school.students.reduce((sum, st) => sum + st.orders.length, 0);
+          const orderCount = school.students.reduce((sum: number, st: any) => sum + st.orders.length, 0);
           return {
             name: school.name,
             region: school.region,
@@ -75,7 +75,7 @@ export default async function OverviewPage() {
             orders: orderCount,
           };
         })
-        .sort((a, b) => b.orders - a.orders)
+        .sort((a: any, b: any) => b.orders - a.orders)
         .slice(0, 5);
     }
   } catch (error) {

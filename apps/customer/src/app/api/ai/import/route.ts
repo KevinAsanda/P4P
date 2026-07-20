@@ -165,7 +165,7 @@ export async function POST(request: NextRequest) {
         const items = catalogBrief
           .filter((p: any) => p.category === "Stationery")
           .slice(0, 3);
-        items.forEach((item, idx) => {
+        items.forEach((item: any, idx: number) => {
           parsedItems.push({
             scannedText: `${idx + 1}. Required Stationery ${item.name}`,
             productId: item.id,

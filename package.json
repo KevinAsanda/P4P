@@ -11,10 +11,12 @@
     "db:generate": "pnpm --filter @p4p/db db:generate",
     "db:push": "pnpm --filter @p4p/db db:push",
     "db:seed": "pnpm --filter @p4p/db seed",
-    "test": "playwright test"
+    "test": "playwright test",
+    "test:unit": "vitest run"
   },
   "devDependencies": {
     "@playwright/test": "^1.61.0",
-    "typescript": "^5.4.5"
+    "typescript": "^5.4.5",
+    "vitest": "^4.1.9"
   }
 }

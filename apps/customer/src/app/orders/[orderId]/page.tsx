@@ -160,7 +160,7 @@ export default async function OrderPage({ params }: PageProps) {
                 Line Items Invoice
               </h4>
               <div className="divide-y divide-gray-100">
-                {order.orderLines.map((line) => (
+                {order.orderLines.map((line: any) => (
                   <div key={line.id} className="py-3 flex justify-between text-xs items-center">
                     <div>
                       <p className="font-bold text-jetblack">{line.product.itemName}</p>

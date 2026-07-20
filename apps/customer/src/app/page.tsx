@@ -1,16 +1,28 @@
 import Image from "next/image";
-import { prisma } from "@p4p/db";
+import { prisma, Prisma } from "@p4p/db";
 import SchoolPicker from "@/components/SchoolPicker";
 import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 
 export const dynamic = "force-dynamic";
 
+type SchoolWithTemplates = Prisma.SchoolGetPayload<{
+  include: {
+    templates: {
+      select: {
+        id: true;
+        gradeLevel: true;
+        academicYear: true;
+      };
+    };
+  };
+}>;
+
 export default async function Home() {
   let dbStatus = "Checking database connection...";
   let isDbConnected = false;
   let testCount = 0;
-  let schoolsList: any[] = [];
+  let schoolsList: SchoolWithTemplates[] = [];
 
   try {
     // Attempt a count on our seeded products table
@@ -45,7 +57,7 @@ export default async function Home() {
     id: school.id,
     name: school.name,
     region: school.region,
-    templates: school.templates.map((t: any) => ({
+    templates: school.templates.map((t) => ({
       id: t.id,
       gradeLevel: t.gradeLevel,
       academicYear: t.academicYear,

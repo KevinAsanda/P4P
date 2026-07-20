@@ -81,7 +81,7 @@ export default async function ProductsPage() {
                       </td>
                     </tr>
                   ) : (
-                    products.map((prod) => (
+                    products.map((prod: any) => (
                       <tr key={prod.id} className="hover:bg-gray-50/40 transition-colors">
                         <td className="px-6 py-4 text-xs">
                           <p className="font-bold text-sm text-gray-900">{prod.itemName}</p>
@@ -262,7 +262,7 @@ export default async function ProductsPage() {
                   className="w-full rounded-xl border border-gray-200 bg-gray-50 px-3 py-2.5 text-sm focus:border-papaya focus:bg-white focus:outline-none"
                 >
                   <option value="">-- No Supplier --</option>
-                  {suppliers.map((s) => (
+                  {suppliers.map((s: any) => (
                     <option key={s.id} value={s.id}>
                       {s.name}
                     </option>

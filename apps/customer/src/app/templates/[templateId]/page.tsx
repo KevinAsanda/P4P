@@ -68,7 +68,7 @@ export default async function TemplatePage({ params }: PageProps) {
     school: {
       name: template.school.name,
     },
-    lines: template.lines.map((line) => ({
+    lines: template.lines.map((line: any) => ({
       id: line.id,
       productId: line.productId,
       quantityRequired: line.quantityRequired,
