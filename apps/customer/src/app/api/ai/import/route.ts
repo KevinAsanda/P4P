@@ -4,9 +4,9 @@ import { isAllowedRateLimit } from "@p4p/shared";
 
 export async function POST(request: NextRequest) {
   try {
-    // 1. Enforce rate limiting
+    // 1. Enforce rate limiting (5 scans per hour per IP)
     const ip = request.headers.get("x-forwarded-for") || "127.0.0.1";
-    if (!isAllowedRateLimit(`scan:${ip}`, 5, 60 * 60 * 1000)) {
+    if (!(await isAllowedRateLimit(`scan:${ip}`, 5, 60 * 60 * 1000))) {
       return new NextResponse(
         "Too many scan requests. Please try again in an hour.",
         {

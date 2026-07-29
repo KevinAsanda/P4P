@@ -20,8 +20,8 @@ export default async function OverviewPage() {
   let lowStockList: any[] = [];
   let topSchools: any[] = [];
 
-  const qbConnected = isQbConnected();
-  const qbTokens = getQbTokens();
+  const qbConnected = await isQbConnected();
+  const qbTokens = await getQbTokens();
   const qbRealmId = qbTokens?.realmId || '';
 
   try {

@@ -5,6 +5,7 @@ import { getActiveRole } from '@/lib/auth-utils';
 import { revalidatePath } from 'next/cache';
 import { sendOrderPackedEmail, sendOrderDispatchedEmail, sendOrderDeliveredEmail } from '@/lib/notifications';
 import { writeAuditLog } from '@/lib/audit';
+import { uploadDeliveryProof } from '@/lib/storage';
 
 // Helper to assert admin role
 async function assertAdmin() {
@@ -272,12 +273,22 @@ export async function confirmDelivery(
 
   const now = new Date();
 
+  // Upload image/signature canvas to Supabase Storage if it's a Base64 data URL
+  let finalProofUrl = proofOfDeliveryDataUrl;
+  if (proofOfDeliveryDataUrl && proofOfDeliveryDataUrl.startsWith('data:image/')) {
+    try {
+      finalProofUrl = await uploadDeliveryProof(orderId, proofOfDeliveryDataUrl);
+    } catch (uploadErr) {
+      console.error('[Fulfillment] Storage upload failed, falling back to data URL:', uploadErr);
+    }
+  }
+
   // 1. Update the delivery record
   await prisma.delivery.update({
     where: { orderId },
     data: {
       actualDate: now,
-      proofOfDeliveryUrl: proofOfDeliveryDataUrl,
+      proofOfDeliveryUrl: finalProofUrl,
     },
   });
 

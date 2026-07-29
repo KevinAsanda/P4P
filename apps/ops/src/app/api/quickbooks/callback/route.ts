@@ -51,8 +51,8 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
     
-    // Save tokens on disk
-    saveQbTokens({
+    // Save tokens in Database
+    await saveQbTokens({
       accessToken: data.access_token,
       refreshToken: data.refresh_token,
       expiresAt: Date.now() + data.expires_in * 1000,

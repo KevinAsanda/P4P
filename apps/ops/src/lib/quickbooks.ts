@@ -1,54 +1,76 @@
-import fs from 'fs';
-import path from 'path';
 import { prisma } from '@p4p/db';
 import { decryptValue } from '@p4p/shared';
 
-const TOKEN_FILE_PATH = path.join(process.cwd(), 'src', 'lib', 'qb-tokens.json');
-
-interface QbTokens {
+export interface QbTokens {
   accessToken: string;
   refreshToken: string;
   expiresAt: number; // timestamp in ms
   realmId: string;
 }
 
-// Helper to retrieve tokens from disk
-export function getQbTokens(): QbTokens | null {
+// Helper to retrieve tokens from PostgreSQL DB
+export async function getQbTokens(): Promise<QbTokens | null> {
   try {
-    if (!fs.existsSync(TOKEN_FILE_PATH)) {
-      return null;
-    }
-    const data = fs.readFileSync(TOKEN_FILE_PATH, 'utf-8');
-    return JSON.parse(data) as QbTokens;
+    const record = await prisma.quickBooksToken.findUnique({
+      where: { id: 'active' },
+    });
+    if (!record) return null;
+    return {
+      accessToken: record.accessToken,
+      refreshToken: record.refreshToken,
+      expiresAt: Number(record.expiresAt),
+      realmId: record.realmId,
+    };
   } catch (error) {
-    console.error('[QuickBooks] Error reading tokens from disk:', error);
+    console.error('[QuickBooks] Error reading tokens from database:', error);
     return null;
   }
 }
 
-// Helper to save tokens to disk
-export function saveQbTokens(tokens: QbTokens) {
+// Helper to save tokens to PostgreSQL DB
+export async function saveQbTokens(tokens: QbTokens) {
   try {
-    const dir = path.dirname(TOKEN_FILE_PATH);
-    if (!fs.existsSync(dir)) {
-      fs.mkdirSync(dir, { recursive: true });
-    }
-    fs.writeFileSync(TOKEN_FILE_PATH, JSON.stringify(tokens, null, 2), 'utf-8');
-    console.log('[QuickBooks] Tokens successfully saved to disk.');
+    await prisma.quickBooksToken.upsert({
+      where: { id: 'active' },
+      update: {
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresAt: BigInt(tokens.expiresAt),
+        realmId: tokens.realmId,
+      },
+      create: {
+        id: 'active',
+        accessToken: tokens.accessToken,
+        refreshToken: tokens.refreshToken,
+        expiresAt: BigInt(tokens.expiresAt),
+        realmId: tokens.realmId,
+      },
+    });
+    console.log('[QuickBooks] Tokens successfully saved to database.');
   } catch (error) {
-    console.error('[QuickBooks] Error saving tokens to disk:', error);
+    console.error('[QuickBooks] Error saving tokens to database:', error);
+  }
+}
+
+// Helper to clear tokens from PostgreSQL DB (disconnect)
+export async function clearQbTokens() {
+  try {
+    await prisma.quickBooksToken.deleteMany();
+    console.log('[QuickBooks] Tokens successfully cleared from database.');
+  } catch (error) {
+    console.error('[QuickBooks] Error clearing tokens from database:', error);
   }
 }
 
 // Check if QuickBooks is connected
-export function isQbConnected(): boolean {
-  const tokens = getQbTokens();
+export async function isQbConnected(): Promise<boolean> {
+  const tokens = await getQbTokens();
   return !!tokens && !!tokens.refreshToken;
 }
 
 // Refresh OAuth2 Access Token using Refresh Token
 export async function refreshQbTokens(): Promise<QbTokens> {
-  const tokens = getQbTokens();
+  const tokens = await getQbTokens();
   if (!tokens || !tokens.refreshToken) {
     throw new Error('QuickBooks is not connected. Re-authorize OAuth2.');
   }
@@ -90,13 +112,13 @@ export async function refreshQbTokens(): Promise<QbTokens> {
     realmId: tokens.realmId, // Keep original realmId
   };
 
-  saveQbTokens(refreshedTokens);
+  await saveQbTokens(refreshedTokens);
   return refreshedTokens;
 }
 
 // Authenticated fetch wrapper for QuickBooks REST API (auto-handles token refreshes)
 export async function qbRequest(endpoint: string, options: RequestInit = {}): Promise<any> {
-  let tokens = getQbTokens();
+  let tokens = await getQbTokens();
   if (!tokens) {
     throw new Error('QuickBooks is not connected. Re-authorize OAuth2.');
   }

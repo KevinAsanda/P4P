@@ -5,13 +5,10 @@ import {
   isQbConnected,
   syncOrderToQuickBooks,
   pullInvoiceStatus,
+  clearQbTokens,
 } from '@/lib/quickbooks';
 import { revalidatePath } from 'next/cache';
-import fs from 'fs';
-import path from 'path';
 import { writeAuditLog } from '@/lib/audit';
-
-const TOKEN_FILE_PATH = path.join(process.cwd(), 'src', 'lib', 'qb-tokens.json');
 
 // Assert that the user is Admin or Finance staff
 async function assertFinanceOrAdmin() {
@@ -23,7 +20,7 @@ async function assertFinanceOrAdmin() {
 
 export async function checkQuickBooksConnection() {
   // Available to admin & finance in UI
-  return isQbConnected();
+  return await isQbConnected();
 }
 
 export async function syncOrderToQuickBooksAction(orderId: string) {
@@ -53,9 +50,7 @@ export async function verifyInvoiceStatusAction(orderId: string) {
 export async function disconnectQuickBooksAction() {
   await assertFinanceOrAdmin();
   try {
-    if (fs.existsSync(TOKEN_FILE_PATH)) {
-      fs.unlinkSync(TOKEN_FILE_PATH);
-    }
+    await clearQbTokens();
     await writeAuditLog('DISCONNECT_QUICKBOOKS', null, 'QuickBooks integration disconnected');
     revalidatePath('/');
     revalidatePath('/orders');
