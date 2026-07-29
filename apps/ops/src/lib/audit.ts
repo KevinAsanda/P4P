@@ -1,8 +1,9 @@
 import { prisma } from '@p4p/db';
-import { getActiveRole } from './auth-utils';
+import { getActiveRole, getAuthenticatedUserId } from './auth-utils';
 
 /**
- * Write an append-only audit log entry into the database.
+ * Write an append-only audit log entry.
+ * Records the real authenticated user's UUID as staffId — never a synthetic string.
  */
 export async function writeAuditLog(
   action: string,
@@ -10,8 +11,11 @@ export async function writeAuditLog(
   details?: string | null
 ) {
   try {
-    const role = await getActiveRole();
-    const staffId = `staff-${role}`; // Mock staff ID since role-based cookie is used for auth in MVP
+    // Fetch role and real user ID in parallel
+    const [role, staffId] = await Promise.all([
+      getActiveRole(),
+      getAuthenticatedUserId(),
+    ]);
 
     await prisma.auditLog.create({
       data: {
@@ -23,6 +27,7 @@ export async function writeAuditLog(
       },
     });
   } catch (err) {
+    // Audit log failures must never crash the primary operation
     console.error('Failed to write audit log:', err);
   }
 }

@@ -111,8 +111,11 @@ export async function qbRequest(endpoint: string, options: RequestInit = {}): Pr
     }
   }
 
+  const isQbProd = process.env.QUICKBOOKS_ENVIRONMENT === 'production';
+  const baseUrl = isQbProd
+    ? 'https://quickbooks.api.intuit.com/v3/company'
+    : 'https://sandbox-quickbooks.api.intuit.com/v3/company';
   const realmId = tokens.realmId;
-  const baseUrl = 'https://sandbox-quickbooks.api.intuit.com/v3/company';
   const url = `${baseUrl}/${realmId}/${endpoint}`;
 
   const defaultHeaders = {

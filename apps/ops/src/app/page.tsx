@@ -1,5 +1,5 @@
 import { prisma } from '@p4p/db';
-import { getActiveRole } from '@/lib/auth-utils';
+import { getAuthContext } from '@/lib/auth-utils';
 import { PERMISSIONS, formatPriceForRole } from '@/lib/rbac';
 import DashboardLayout from '@/components/DashboardLayout';
 import { DollarSign, ShoppingBag, Box, AlertTriangle, GraduationCap, Building } from 'lucide-react';
@@ -10,7 +10,7 @@ import QbConnectionManager from '@/components/QbConnectionManager';
 export const dynamic = 'force-dynamic';
 
 export default async function OverviewPage() {
-  const activeRole = await getActiveRole();
+  const { activeRole, isActualAdmin, userEmail } = await getAuthContext();
   const permissions = PERMISSIONS[activeRole];
 
   // Initialize analytics variables
@@ -25,21 +25,18 @@ export default async function OverviewPage() {
   const qbRealmId = qbTokens?.realmId || '';
 
   try {
-    // 1. Low stock alerts (visible to Admin/Finance/Warehouse, but values formatted)
-    const lowStockProducts = await prisma.product.findMany({
-      where: {
-        qtyOnHand: {
-          lte: prisma.product.fields.reorderThreshold,
-        },
-      },
-      include: {
-        supplier: true,
-      },
-      orderBy: {
-        qtyOnHand: 'asc',
-      },
-    });
-    lowStockList = lowStockProducts;
+    // 1. Low stock alerts — compare two columns using raw SQL
+    const lowStockProducts = await prisma.$queryRaw<any[]>`
+      SELECT p.*, s.name AS "supplierName"
+      FROM "Product" p
+      LEFT JOIN "Supplier" s ON s.id = p."supplierId"
+      WHERE p."qtyOnHand" <= p."reorderThreshold"
+      ORDER BY p."qtyOnHand" ASC
+    `;
+    lowStockList = lowStockProducts.map((p: any) => ({
+      ...p,
+      supplier: p.supplierName ? { name: p.supplierName } : null,
+    }));
 
     // 2. BI Metrics (Authorized roles only)
     if (permissions.canSeeBI) {
@@ -83,7 +80,7 @@ export default async function OverviewPage() {
   }
 
   return (
-    <DashboardLayout activeRole={activeRole}>
+    <DashboardLayout activeRole={activeRole} isActualAdmin={isActualAdmin} userEmail={userEmail}>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-black tracking-tight text-gray-900 capitalize">

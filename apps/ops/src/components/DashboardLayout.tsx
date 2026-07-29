@@ -4,7 +4,7 @@ import { useTransition } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { switchRole } from '@/lib/auth-utils';
+import { opsSignout, setPreviewRole } from '@/app/auth-actions';
 import { OpsRole, PERMISSIONS } from '@/lib/rbac';
 import {
   LayoutDashboard,
@@ -13,28 +13,42 @@ import {
   FileSpreadsheet,
   School,
   Truck,
-  TrendingUp,
   Shield,
-  Layers,
   ClipboardList,
   MapPin,
+  LogOut,
+  Eye,
+  Users,
 } from 'lucide-react';
 
 interface DashboardLayoutProps {
   children: React.ReactNode;
   activeRole: OpsRole;
+  isActualAdmin?: boolean;  // true when the JWT role is 'admin', regardless of preview
+  userEmail?: string;
 }
 
-export default function DashboardLayout({ children, activeRole }: DashboardLayoutProps) {
+export default function DashboardLayout({
+  children,
+  activeRole,
+  isActualAdmin = false,
+  userEmail = '',
+}: DashboardLayoutProps) {
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
-  const handleRoleChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
+  const handlePreviewChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
     const nextRole = e.target.value;
     startTransition(async () => {
-      await switchRole(nextRole);
-      // Force reload to update permissions and UI states
+      // 'admin' means "exit preview mode"
+      await setPreviewRole(nextRole === 'admin' ? null : nextRole);
       window.location.reload();
+    });
+  };
+
+  const handleSignOut = () => {
+    startTransition(async () => {
+      await opsSignout();
     });
   };
 
@@ -85,11 +99,15 @@ export default function DashboardLayout({ children, activeRole }: DashboardLayou
       name: 'Suppliers',
       href: '/suppliers',
       icon: Truck,
-
       visible: PERMISSIONS[activeRole].canSeeSuppliers,
     },
+    {
+      name: 'Staff',
+      href: '/staff',
+      icon: Users,
+      visible: isActualAdmin, // Only real admins can manage staff
+    },
   ];
-
 
   return (
     <div className="flex min-h-screen bg-gray-50 text-jetblack">
@@ -132,16 +150,31 @@ export default function DashboardLayout({ children, activeRole }: DashboardLayou
             })}
         </nav>
 
-        <div className="p-4 border-t border-gray-200 bg-gray-50/50">
-          <div className="flex items-center gap-2.5">
-            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-jetblack text-white">
-              <Shield className="h-4.5 w-4.5" />
+        {/* Sidebar Footer — User identity + sign out */}
+        <div className="p-4 border-t border-gray-200 space-y-2">
+          <div className="flex items-center gap-2.5 px-2">
+            <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-jetblack text-white shrink-0">
+              <Shield className="h-4 w-4" />
             </div>
-            <div>
-              <p className="text-xs font-bold text-gray-900 capitalize">{activeRole} Profile</p>
-              <p className="text-[10px] text-gray-400">Security Clearance</p>
+            <div className="min-w-0">
+              <p className="text-xs font-bold text-gray-900 capitalize truncate">
+                {isActualAdmin && activeRole !== 'admin' ? (
+                  <span className="text-caramel">Preview: {activeRole}</span>
+                ) : (
+                  `${activeRole} role`
+                )}
+              </p>
+              <p className="text-[10px] text-gray-400 truncate">{userEmail || 'Staff'}</p>
             </div>
           </div>
+          <button
+            onClick={handleSignOut}
+            disabled={isPending}
+            className="w-full flex items-center gap-2.5 px-4 py-2.5 text-sm font-bold text-gray-500 rounded-xl hover:bg-vermillion/5 hover:text-vermillion transition-all disabled:opacity-50"
+          >
+            <LogOut className="h-4 w-4" />
+            <span>Sign Out</span>
+          </button>
         </div>
       </aside>
 
@@ -149,6 +182,7 @@ export default function DashboardLayout({ children, activeRole }: DashboardLayou
       <div className="flex-1 flex flex-col overflow-x-hidden">
         {/* Top Header */}
         <header className="h-16 bg-white border-b border-gray-200 flex items-center justify-between px-6 z-10 shrink-0">
+          {/* Mobile logo */}
           <div className="flex items-center gap-3 md:hidden">
             <div className="relative h-8 w-32">
               <Image
@@ -159,6 +193,8 @@ export default function DashboardLayout({ children, activeRole }: DashboardLayou
               />
             </div>
           </div>
+
+          {/* Desktop breadcrumb */}
           <div className="hidden md:flex items-center gap-2 text-xs font-semibold text-gray-500">
             <span>Portal</span>
             <span>/</span>
@@ -167,25 +203,40 @@ export default function DashboardLayout({ children, activeRole }: DashboardLayou
             </span>
           </div>
 
-          {/* Dev Role Switcher */}
+          {/* Right side: Admin Preview Mode + mobile sign out */}
           <div className="flex items-center gap-3">
-            <div className="flex items-center gap-2 bg-papaya-light/20 border border-papaya/30 px-3 py-1.5 rounded-xl">
-              <Layers className="h-4 w-4 text-caramel" />
-              <label htmlFor="role-switcher" className="text-[10px] font-black uppercase text-caramel tracking-wider">
-                Dev Switch:
-              </label>
-              <select
-                id="role-switcher"
-                value={activeRole}
-                onChange={handleRoleChange}
-                disabled={isPending}
-                className="bg-transparent text-xs font-bold text-jetblack focus:outline-none cursor-pointer"
-              >
-                <option value="admin">Admin (Caron)</option>
-                <option value="finance">Finance Staff</option>
-                <option value="warehouse">Warehouse Staff</option>
-              </select>
-            </div>
+            {/* Preview Mode — Admin Only */}
+            {isActualAdmin && (
+              <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl">
+                <Eye className="h-3.5 w-3.5 text-amber-600" />
+                <label
+                  htmlFor="preview-role-switcher"
+                  className="text-[10px] font-black uppercase text-amber-600 tracking-wider"
+                >
+                  Preview:
+                </label>
+                <select
+                  id="preview-role-switcher"
+                  value={activeRole}
+                  onChange={handlePreviewChange}
+                  disabled={isPending}
+                  className="bg-transparent text-xs font-bold text-jetblack focus:outline-none cursor-pointer"
+                >
+                  <option value="admin">Admin (own view)</option>
+                  <option value="finance">Finance Staff</option>
+                  <option value="warehouse">Warehouse Staff</option>
+                </select>
+              </div>
+            )}
+
+            {/* Mobile sign out */}
+            <button
+              onClick={handleSignOut}
+              disabled={isPending}
+              className="md:hidden flex items-center gap-1.5 text-xs font-bold text-gray-500 hover:text-vermillion transition-colors"
+            >
+              <LogOut className="h-4 w-4" />
+            </button>
           </div>
         </header>
 

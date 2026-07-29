@@ -1,5 +1,5 @@
 import { prisma } from '@p4p/db';
-import { getActiveRole } from '@/lib/auth-utils';
+import { getAuthContext } from '@/lib/auth-utils';
 import { createSupplier } from '@/app/crud-actions';
 import DashboardLayout from '@/components/DashboardLayout';
 import { ShieldAlert, Plus, Mail, Phone, User } from 'lucide-react';
@@ -7,12 +7,12 @@ import { ShieldAlert, Plus, Mail, Phone, User } from 'lucide-react';
 export const dynamic = 'force-dynamic';
 
 export default async function SuppliersPage() {
-  const activeRole = await getActiveRole();
+  const { activeRole, isActualAdmin, userEmail } = await getAuthContext();
 
   // Permitted roles: admin & finance
   if (activeRole !== 'admin' && activeRole !== 'finance') {
     return (
-      <DashboardLayout activeRole={activeRole}>
+      <DashboardLayout activeRole={activeRole} isActualAdmin={isActualAdmin} userEmail={userEmail}>
         <div className="bg-white p-8 rounded-2xl border border-gray-200 shadow-sm text-center py-12 max-w-lg mx-auto">
           <ShieldAlert className="h-10 w-10 text-vermillion mx-auto" />
           <h2 className="text-xl font-extrabold text-gray-900 mt-4">Access Denied</h2>

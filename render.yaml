@@ -32,6 +32,10 @@ services:
         sync: false
       - key: GEMINI_API_KEY
         sync: false
+      - key: ENCRYPTION_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_CUSTOMER_URL
+        sync: false
 
   - type: web
     name: p4p-ops
@@ -67,4 +71,8 @@ services:
       - key: QUICKBOOKS_ENVIRONMENT
         value: sandbox
       - key: GEMINI_API_KEY
+        sync: false
+      - key: ENCRYPTION_SECRET
+        sync: false
+      - key: NEXT_PUBLIC_CUSTOMER_URL
         sync: false

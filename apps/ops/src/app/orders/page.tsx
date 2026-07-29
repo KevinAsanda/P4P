@@ -1,5 +1,5 @@
 import { prisma } from '@p4p/db';
-import { getActiveRole } from '@/lib/auth-utils';
+import { getAuthContext } from '@/lib/auth-utils';
 import { PERMISSIONS, formatAddressForRole, formatPriceForRole } from '@/lib/rbac';
 import DashboardLayout from '@/components/DashboardLayout';
 import Link from 'next/link';
@@ -16,7 +16,7 @@ interface PageProps {
 export const dynamic = 'force-dynamic';
 
 export default async function OrdersPage({ searchParams }: PageProps) {
-  const activeRole = await getActiveRole();
+  const { activeRole, isActualAdmin, userEmail } = await getAuthContext();
   const permissions = PERMISSIONS[activeRole];
   
   const { paymentStatus, fulfillmentStatus } = await searchParams;
@@ -57,7 +57,7 @@ export default async function OrdersPage({ searchParams }: PageProps) {
   }));
 
   return (
-    <DashboardLayout activeRole={activeRole}>
+    <DashboardLayout activeRole={activeRole} isActualAdmin={isActualAdmin} userEmail={userEmail}>
       <div className="space-y-6">
         {/* Header */}
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">

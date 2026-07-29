@@ -106,17 +106,29 @@ export async function createCheckoutOrder(
     });
   }
 
-  // 3. Create Student
-  const student = await prisma.student.create({
-    data: {
+  // 3. Upsert Student — reuse existing record for the same child/grade/year
+  let student = await prisma.student.findFirst({
+    where: {
       customerId: customer.id,
-      schoolId: school.id,
       firstName: studentData.firstName,
       lastName: studentData.lastName,
       gradeLevel: cartData.gradeLevel,
       academicYear: Number(cartData.academicYear),
     },
   });
+
+  if (!student) {
+    student = await prisma.student.create({
+      data: {
+        customerId: customer.id,
+        schoolId: school.id,
+        firstName: studentData.firstName,
+        lastName: studentData.lastName,
+        gradeLevel: cartData.gradeLevel,
+        academicYear: Number(cartData.academicYear),
+      },
+    });
+  }
 
   // 4. Create Sales Order
   const order = await prisma.salesOrder.create({

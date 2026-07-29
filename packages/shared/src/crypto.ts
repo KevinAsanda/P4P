@@ -1,7 +1,15 @@
 import crypto from 'crypto';
 
-// Retrieve or derive a 32-byte key for AES-256
-const SECRET = process.env.ENCRYPTION_SECRET || 'p4p-fallback-secure-encryption-secret-key-2026';
+// Retrieve or derive a 32-byte key for AES-256.
+// ENCRYPTION_SECRET must always be set — never fall back to a default.
+const SECRET = process.env.ENCRYPTION_SECRET;
+if (!SECRET) {
+  throw new Error(
+    '[SECURITY] ENCRYPTION_SECRET environment variable is not set. ' +
+    'This variable is required to encrypt customer PII (phone, address). ' +
+    'Set it in your .env file and in your Render environment variables.'
+  );
+}
 const KEY = crypto.createHash('sha256').update(SECRET).digest();
 
 /**
