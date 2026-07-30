@@ -178,7 +178,18 @@ export async function qbRequest(endpoint: string, options: RequestInit = {}): Pr
       }
     }
     
-    throw new Error(`QuickBooks API Error: [${response.status}] ${response.statusText}`);
+    let detailMsg = response.statusText;
+    try {
+      const parsedErr = JSON.parse(errBody);
+      const qbErr = parsedErr?.Fault?.Error?.[0];
+      if (qbErr?.Detail) {
+        detailMsg = qbErr.Detail;
+      } else if (qbErr?.Message) {
+        detailMsg = qbErr.Message;
+      }
+    } catch {}
+
+    throw new Error(`QuickBooks API Error: ${detailMsg}`);
   }
 
   return await response.json();
@@ -208,7 +219,7 @@ export async function getOrCreateQbCustomer(customer: {
   console.log(`[QuickBooks] Customer ${customer.email} not found. Enrolling new account...`);
   const createPayload = {
     FullyQualifiedName: `${customer.firstName} ${customer.lastName} (${customer.email})`,
-    DisplayName: `${customer.firstName} ${customer.lastName}`,
+    DisplayName: `${customer.firstName} ${customer.lastName} (${customer.email})`,
     GivenName: customer.firstName,
     FamilyName: customer.lastName,
     PrimaryEmailAddr: {
@@ -255,13 +266,13 @@ export async function getOrCreateQbItem(product: {
   // Register new product in QB (needs an Income Account in sandbox)
   console.log(`[QuickBooks] Product SKU ${product.sku} not found. Enrolling item details...`);
 
-  // First, find the first active Sales/Revenue Account in QuickBooks to link the item's sales transactions
-  const accountsQuery = "select * from Account where AccountType = 'Revenue' and Active = true";
+  // First, find the first active Income Account in QuickBooks to link the item's sales transactions
+  const accountsQuery = "select * from Account where AccountType = 'Income' and Active = true";
   const accountsResult = await qbRequest(`query?query=${encodeURIComponent(accountsQuery)}`);
   
   const incomeAccount = accountsResult.QueryResponse?.Account?.[0];
   if (!incomeAccount) {
-    throw new Error('Failed to find active Revenue/Income Account in QuickBooks Sandbox to link items.');
+    throw new Error('Failed to find active Income Account in QuickBooks Sandbox to link items.');
   }
 
   const createPayload = {
