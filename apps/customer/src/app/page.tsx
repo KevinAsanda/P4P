@@ -101,7 +101,7 @@ export default async function Home() {
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
           {/* Logo — larger for brand presence */}
           <Link href="/" className="flex items-center gap-3 group shrink-0">
-            <div className="relative h-14 w-56 transition-transform group-hover:scale-105">
+            <div className="relative h-16 w-64 transition-transform group-hover:scale-105">
               <Image
                 src="/brand/p4p-logo.png"
                 alt="PREPPED 4 PREP Logo"
