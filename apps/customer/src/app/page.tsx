@@ -103,7 +103,7 @@ export default async function Home() {
           <Link href="/" className="flex items-center gap-3 group">
             <div className="relative h-12 w-48 transition-transform group-hover:scale-105">
               <Image
-                src="/brand/logo-wordmark.svg"
+                src="/brand/p4p-logo.png"
                 alt="PREPPED 4 PREP Logo"
                 fill
                 priority
@@ -386,6 +386,47 @@ export default async function Home() {
                   fill
                   className="object-cover"
                 />
+              </div>
+            </div>
+
+            {/* Personalized Note Card Feature Showcase */}
+            <div className="mt-16 rounded-3xl bg-gradient-to-r from-amber-500 via-amber-400 to-papaya p-8 sm:p-12 text-jetblack shadow-2xl relative overflow-hidden border-4 border-amber-300">
+              <div className="grid grid-cols-1 lg:grid-cols-12 items-center gap-8 relative z-10">
+                <div className="lg:col-span-7 space-y-4">
+                  <div className="inline-flex items-center gap-2 rounded-full bg-jetblack text-white px-4 py-1.5 text-xs font-black uppercase tracking-wider">
+                    <Heart className="h-3.5 w-3.5 fill-papaya text-papaya" />
+                    <span>Included Free In Every Box!</span>
+                  </div>
+                  <h3 className="text-3xl sm:text-5xl font-black tracking-tight leading-tight">
+                    Every Pack Comes With A Personal Welcome Note!
+                  </h3>
+                  <p className="text-sm font-semibold text-jetblack/80 leading-relaxed max-w-xl">
+                    We write a personalized greeting card inserted inside every child's stationery pack box. Starting Grade 1 or a new school year is a big milestone — we make sure your child feels loved and excited for Day 1!
+                  </p>
+                  <div className="pt-2 flex items-center gap-4">
+                    <div className="relative h-12 w-12 shrink-0 rounded-xl overflow-hidden border-2 border-white shadow-md">
+                      <Image
+                        src="/brand/square-logo.png"
+                        alt="Prepped 4 Prep Official Badge"
+                        fill
+                        className="object-cover"
+                      />
+                    </div>
+                    <div className="text-xs font-black">
+                      <span>Official Prepped 4 Prep Stamp</span>
+                      <span className="block text-[10px] font-bold opacity-75">Hand-packed with care in Durban</span>
+                    </div>
+                  </div>
+                </div>
+
+                <div className="lg:col-span-5 relative h-72 sm:h-80 w-full rounded-2xl overflow-hidden border-4 border-white shadow-2xl bg-white p-2">
+                  <Image
+                    src="/brand/box-note-template.png"
+                    alt="Personalized child welcome note template"
+                    fill
+                    className="object-contain"
+                  />
+                </div>
               </div>
             </div>
           </div>
