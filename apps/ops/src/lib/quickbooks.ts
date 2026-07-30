@@ -189,7 +189,7 @@ export async function qbRequest(endpoint: string, options: RequestInit = {}): Pr
       }
     } catch {}
 
-    throw new Error(`QuickBooks API Error: ${detailMsg}`);
+    throw new Error(`QuickBooks API Error [${endpoint}]: ${detailMsg}`);
   }
 
   return await response.json();
@@ -206,7 +206,14 @@ export async function getOrCreateQbCustomer(customer: {
   email: string;
   phone: string | null;
 }): Promise<string> {
-  const displayName = `${customer.firstName} ${customer.lastName} (${customer.email})`;
+  // Intuit prohibits :, /, \, ", tabs in Customer.DisplayName
+  const rawDisplayName = `${customer.firstName} ${customer.lastName} (${customer.email})`;
+  const displayName = rawDisplayName
+    .replace(/[:/\\"'\t\r\n]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 100);
+
   const safeDisplayName = displayName.replace(/'/g, "\\'");
   const query = `select * from Customer where DisplayName = '${safeDisplayName}'`;
   const searchResult = await qbRequest(`query?query=${encodeURIComponent(query)}`);
@@ -220,9 +227,9 @@ export async function getOrCreateQbCustomer(customer: {
   // Create new customer in QB
   console.log(`[QuickBooks] Customer ${customer.email} not found. Enrolling new account...`);
   const createPayload = {
-    DisplayName: displayName.slice(0, 100).replace(/:/g, '-'),
-    GivenName: customer.firstName,
-    FamilyName: customer.lastName,
+    DisplayName: displayName,
+    GivenName: customer.firstName.replace(/[:/\\"'\t\r\n]/g, ' ').trim(),
+    FamilyName: customer.lastName.replace(/[:/\\"'\t\r\n]/g, ' ').trim(),
     PrimaryEmailAddr: {
       Address: customer.email,
     },
@@ -254,8 +261,16 @@ export async function getOrCreateQbItem(product: {
   sku: string;
   unitPrice: number;
 }): Promise<string> {
-  const safeSku = product.sku.replace(/'/g, "\\'");
-  const query = `select * from Item where Name = '${safeSku}'`;
+  // Intuit prohibits :, /, \, ", tabs in Item.Name
+  const rawItemName = `${product.itemName} (${product.sku})`;
+  const itemName = rawItemName
+    .replace(/[:/\\"'\t\r\n]/g, ' ')
+    .replace(/\s+/g, ' ')
+    .trim()
+    .slice(0, 100);
+
+  const safeItemName = itemName.replace(/'/g, "\\'");
+  const query = `select * from Item where Name = '${safeItemName}'`;
   const searchResult = await qbRequest(`query?query=${encodeURIComponent(query)}`);
 
   const qbItem = searchResult.QueryResponse?.Item?.[0];
@@ -276,8 +291,10 @@ export async function getOrCreateQbItem(product: {
     throw new Error('Failed to find active Income Account in QuickBooks Sandbox to link items.');
   }
 
+  const cleanSku = product.sku.replace(/[:/\\"'\t\r\n]/g, '-').trim();
+
   const createPayload = {
-    Name: `${product.itemName} (${product.sku})`.slice(0, 100).replace(/:/g, '-'),
+    Name: itemName,
     Description: product.itemName,
     Active: true,
     Type: 'Service',
@@ -285,7 +302,7 @@ export async function getOrCreateQbItem(product: {
     IncomeAccountRef: {
       value: incomeAccount.Id,
     },
-    SKU: product.sku,
+    SKU: cleanSku,
   };
 
   const createResult = await qbRequest('item', {
