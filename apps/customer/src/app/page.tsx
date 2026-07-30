@@ -89,7 +89,7 @@ export default async function Home() {
   ];
 
   return (
-    <div className="flex min-h-screen flex-col bg-[#FAF8F5] font-sans text-jetblack selection:bg-papaya selection:text-jetblack">
+    <div className="flex min-h-screen flex-col bg-[#F0F9FF] font-sans text-jetblack selection:bg-papaya selection:text-jetblack">
       {/* ── Scrolling Announcement Bar ─────────────────────────────────────── */}
       <div className="bg-jetblack py-2.5 overflow-hidden shadow-sm" role="marquee" aria-label="Announcements">
         <div className="announcement-scroll whitespace-nowrap">
@@ -103,7 +103,7 @@ export default async function Home() {
       </div>
 
       {/* ── Sticky Header Navigation ───────────────────────────────────────── */}
-      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-amber-900/10 shadow-sm">
+      <header className="sticky top-0 z-50 bg-white/95 backdrop-blur-md border-b border-sky-100 shadow-sm">
         <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
           {/* Logo */}
           <Link href="/" className="flex items-center gap-3 group shrink-0">
@@ -272,7 +272,7 @@ export default async function Home() {
         </section>
 
         {/* ── Find Your School List Section ─────────────────────────────────── */}
-        <section id="school-picker" className="py-20 bg-[#FAF8F5]">
+        <section id="school-picker" className="py-20 bg-[#F0F9FF]">
           <div className="mx-auto max-w-7xl px-6">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
               {/* Left: Heading & context */}
@@ -301,7 +301,7 @@ export default async function Home() {
                 </div>
 
                 {/* Scan prompt card */}
-                <div className="rounded-2xl bg-white border border-amber-900/10 p-5 flex items-center gap-4 max-w-md mx-auto lg:mx-0 shadow-md hover:shadow-lg transition-shadow duration-200">
+                <div className="rounded-2xl bg-white border border-sky-200/80 p-5 flex items-center gap-4 max-w-md mx-auto lg:mx-0 shadow-md hover:shadow-lg transition-shadow duration-200">
                   <div className="relative h-14 w-10 shrink-0">
                     <Image
                       src="/brand/preppi-mascot.svg"
@@ -333,7 +333,7 @@ export default async function Home() {
         </section>
 
         {/* ── Services Section ─────────────────────────────────────────────── */}
-        <section id="services" className="py-20 bg-[#F5F2EC] border-t border-amber-900/5">
+        <section id="services" className="py-20 bg-[#F0F9FF] border-t border-sky-100">
           <div className="mx-auto max-w-7xl px-6 space-y-12">
             <div className="text-center max-w-2xl mx-auto space-y-4">
               <h2 className="text-3xl font-black text-jetblack sm:text-5xl tracking-tight">
@@ -346,7 +346,7 @@ export default async function Home() {
 
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
               {/* Card 1: Pre-Packed Lists */}
-              <div className="rounded-2xl bg-white border border-gray-200/80 border-t-4 border-t-papaya p-6 space-y-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group">
+              <div className="rounded-2xl bg-white border border-sky-200/80 border-t-4 border-t-papaya p-6 space-y-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group">
                 <div className="h-12 w-12 rounded-xl bg-papaya/15 flex items-center justify-center text-caramel group-hover:bg-papaya group-hover:text-jetblack transition-colors duration-300 shadow-xs">
                   <BookOpen className="h-6 w-6" />
                 </div>
@@ -357,7 +357,7 @@ export default async function Home() {
               </div>
 
               {/* Card 2: Book Covering */}
-              <div className="rounded-2xl bg-white border border-gray-200/80 border-t-4 border-t-papaya p-6 space-y-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group">
+              <div className="rounded-2xl bg-white border border-sky-200/80 border-t-4 border-t-papaya p-6 space-y-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group">
                 <div className="h-12 w-12 rounded-xl bg-papaya/15 flex items-center justify-center text-caramel group-hover:bg-papaya group-hover:text-jetblack transition-colors duration-300 shadow-xs">
                   <Scissors className="h-6 w-6" />
                 </div>
@@ -368,7 +368,7 @@ export default async function Home() {
               </div>
 
               {/* Card 3: Name Labels */}
-              <div className="rounded-2xl bg-white border border-gray-200/80 border-t-4 border-t-papaya p-6 space-y-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group">
+              <div className="rounded-2xl bg-white border border-sky-200/80 border-t-4 border-t-papaya p-6 space-y-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group">
                 <div className="h-12 w-12 rounded-xl bg-papaya/15 flex items-center justify-center text-caramel group-hover:bg-papaya group-hover:text-jetblack transition-colors duration-300 shadow-xs">
                   <Tag className="h-6 w-6" />
                 </div>
@@ -379,7 +379,7 @@ export default async function Home() {
               </div>
 
               {/* Card 4: Delivery */}
-              <div className="rounded-2xl bg-white border border-gray-200/80 border-t-4 border-t-papaya p-6 space-y-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group">
+              <div className="rounded-2xl bg-white border border-sky-200/80 border-t-4 border-t-papaya p-6 space-y-4 shadow-md hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300 group">
                 <div className="h-12 w-12 rounded-xl bg-papaya/15 flex items-center justify-center text-caramel group-hover:bg-papaya group-hover:text-jetblack transition-colors duration-300 shadow-xs">
                   <Truck className="h-6 w-6" />
                 </div>
@@ -391,7 +391,7 @@ export default async function Home() {
             </div>
 
             {/* Service Feature: Book Covering Showcase */}
-            <div className="mt-12 rounded-2xl overflow-hidden border border-gray-200 shadow-lg bg-white grid grid-cols-1 md:grid-cols-12 items-center">
+            <div className="mt-12 rounded-2xl overflow-hidden border border-sky-200/80 shadow-lg bg-white grid grid-cols-1 md:grid-cols-12 items-center">
               <div className="md:col-span-7 p-8 sm:p-12 space-y-4">
                 <p className="text-sm font-semibold text-caramel">Professional Book Covering</p>
                 <h3 className="text-2xl sm:text-4xl font-black text-jetblack">
@@ -465,7 +465,7 @@ export default async function Home() {
         <OrderTrackerSection />
 
         {/* ── How It Works ─────────────────────────────────────────────────── */}
-        <section className="py-20 bg-[#FAF8F5]">
+        <section className="py-20 bg-[#F0F9FF]">
           <div className="mx-auto max-w-7xl px-6 space-y-12">
             <div className="text-center max-w-2xl mx-auto space-y-4">
               <h2 className="text-3xl font-black text-jetblack sm:text-5xl tracking-tight">
@@ -499,7 +499,7 @@ export default async function Home() {
                   desc: "Your ready-for-school package arrives at your doorstep or school campus before day one.",
                 },
               ].map((item) => (
-                <div key={item.step} className="rounded-2xl bg-white p-6 border border-gray-200/80 shadow-md space-y-3 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
+                <div key={item.step} className="rounded-2xl bg-white p-6 border border-sky-200/80 shadow-md space-y-3 hover:shadow-xl hover:-translate-y-1.5 transition-all duration-300">
                   <span className="text-4xl font-black text-papaya">{item.step}</span>
                   <h3 className="text-lg font-bold text-jetblack">{item.title}</h3>
                   <p className="text-sm text-gray-600 leading-relaxed">{item.desc}</p>
@@ -510,7 +510,7 @@ export default async function Home() {
         </section>
 
         {/* ── Supported Schools ────────────────────────────────────────────── */}
-        <section className="py-20 bg-white border-t border-gray-100">
+        <section className="py-20 bg-white border-t border-sky-100">
           <div className="mx-auto max-w-7xl px-6 space-y-8 text-center">
             <div className="space-y-3">
               <h3 className="text-2xl font-black text-jetblack sm:text-3xl">
@@ -524,7 +524,7 @@ export default async function Home() {
               {schoolsSupported.map((schoolName) => (
                 <span
                   key={schoolName}
-                  className="rounded-xl bg-[#FAF8F5] border border-gray-200/80 px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-xs hover:border-papaya hover:bg-white transition-all duration-200"
+                  className="rounded-xl bg-[#F0F9FF] border border-sky-200/80 px-4 py-2.5 text-sm font-semibold text-gray-700 shadow-xs hover:border-papaya hover:bg-white transition-all duration-200"
                 >
                   {schoolName}
                 </span>
@@ -584,7 +584,7 @@ export default async function Home() {
       </main>
 
       {/* ── Footer ─────────────────────────────────────────────────────────── */}
-      <footer className="border-t border-amber-900/10 bg-[#F5F2EC] py-12 text-jetblack">
+      <footer className="border-t border-sky-100 bg-[#E0F2FE]/40 py-12 text-jetblack">
         <div className="mx-auto max-w-7xl px-6 grid grid-cols-1 md:grid-cols-4 gap-8">
           <div className="space-y-3">
             <div className="relative h-10 w-44">
@@ -635,7 +635,7 @@ export default async function Home() {
           </div>
         </div>
 
-        <div className="mx-auto max-w-7xl px-6 mt-8 pt-6 border-t border-gray-200/80 text-center text-xs text-gray-500">
+        <div className="mx-auto max-w-7xl px-6 mt-8 pt-6 border-t border-sky-200/80 text-center text-xs text-gray-500">
           <p>&copy; {new Date().getFullYear()} Prepped 4 Prep. Avoid the fuss, trust us! Built with love in Durban.</p>
         </div>
       </footer>
