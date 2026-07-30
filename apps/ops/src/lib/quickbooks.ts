@@ -298,11 +298,10 @@ export async function getOrCreateQbItem(product: {
     Description: product.itemName,
     Active: true,
     Type: 'Service',
-    UnitPrice: product.unitPrice,
+    UnitPrice: Number(product.unitPrice) || 0,
     IncomeAccountRef: {
       value: incomeAccount.Id,
     },
-    SKU: cleanSku,
   };
 
   const createResult = await qbRequest('item', {
