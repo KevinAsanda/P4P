@@ -152,106 +152,101 @@ export default async function Home() {
       </header>
 
       <main className="flex-1">
-        {/* ── Hero Section (Inspired by kids-school-landing) ────────────────── */}
-        <section className="relative overflow-hidden bg-gradient-to-b from-amber-50/70 via-white to-amber-50/30 pt-12 pb-20 lg:pt-16 lg:pb-28">
-          {/* Decorative background shapes */}
-          <div className="pointer-events-none absolute -top-24 -left-24 h-96 w-96 rounded-full bg-papaya/20 blur-3xl" />
-          <div className="pointer-events-none absolute top-1/2 -right-24 h-96 w-96 rounded-full bg-purple-200/30 blur-3xl" />
+        {/* ── Hero Section — Full-Bleed Background ─────────────────────────── */}
+        <section className="relative min-h-[85vh] flex items-center overflow-hidden">
+          {/* Background Image */}
+          <Image
+            src="/brand/hero-bg.jpg"
+            alt="Colorful school stationery supplies"
+            fill
+            priority
+            className="object-cover"
+          />
+          {/* Dark gradient overlay for text contrast */}
+          <div className="absolute inset-0 bg-gradient-to-r from-jetblack/85 via-jetblack/70 to-jetblack/40" />
+          {/* Decorative brand color wash */}
+          <div className="pointer-events-none absolute inset-0 bg-gradient-to-tr from-purple-900/30 via-transparent to-papaya/20" />
 
-          <div className="mx-auto max-w-7xl px-6 relative z-10">
-            <div className="grid grid-cols-1 items-center gap-12 lg:grid-cols-12">
-              {/* Left Column: Heading & Copy */}
-              <div className="lg:col-span-6 space-y-6 text-center lg:text-left">
-                <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 border border-amber-300/60 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-caramel shadow-xs">
-                  <Star className="h-3.5 w-3.5 fill-amber-500 text-amber-500" />
-                  <span>Durban's #1 Mom-Led School Stationery Service</span>
+          {/* Hero Content */}
+          <div className="relative z-10 mx-auto w-full max-w-7xl px-6 py-20 lg:py-28">
+            <div className="max-w-3xl space-y-8">
+              {/* Badge */}
+              <div className="inline-flex items-center gap-2 rounded-full bg-white/15 backdrop-blur-md border border-white/20 px-5 py-2 text-xs font-black uppercase tracking-wider text-papaya shadow-lg">
+                <Star className="h-4 w-4 fill-papaya text-papaya" />
+                <span>Durban&apos;s #1 Mom-Led School Stationery Service</span>
+              </div>
+
+              {/* Headline */}
+              <h1 className="text-5xl font-black tracking-tight text-white sm:text-7xl leading-[1.05]">
+                Back-To-School{" "}
+                <br className="hidden sm:block" />
+                Stationery,{" "}
+                <br />
+                <span className="bg-gradient-to-r from-papaya via-amber-300 to-caramel bg-clip-text text-transparent">
+                  Prepped With Love.
+                </span>
+              </h1>
+
+              {/* Sub-copy */}
+              <p className="text-lg sm:text-xl text-gray-200 max-w-2xl leading-relaxed">
+                Skip the Durban summer shopping rush. Pick your child&apos;s school, and we&apos;ll pack every pen, cover exercise books in heavy-duty plastic, print custom waterproof name tags, and deliver straight to your door.
+              </p>
+
+              {/* Trust Badges */}
+              <div className="flex flex-wrap items-center gap-4 text-xs font-bold text-white/90">
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-white/10">
+                  <CheckCircle2 className="h-4 w-4 text-green-400" />
+                  <span>15+ Durban Schools</span>
                 </div>
-
-                <h1 className="text-4xl font-black tracking-tight text-jetblack sm:text-6xl leading-[1.1]">
-                  Back-To-School <br />
-                  Stationery, <br />
-                  <span className="bg-gradient-to-r from-teal-700 via-purple-700 to-amber-500 bg-clip-text text-transparent">
-                    Prepped With Love.
-                  </span>
-                </h1>
-
-                <p className="text-base sm:text-lg text-gray-600 max-w-xl mx-auto lg:mx-0 leading-relaxed">
-                  Avoid the Durban summer shopping rush! Select your child's exact school list, and we'll pack every pen, cover exercise books in heavy-duty plastic, print custom waterproof name tags, and deliver straight to your door or school.
-                </p>
-
-                {/* Hero Badges */}
-                <div className="pt-2 flex flex-wrap items-center justify-center lg:justify-start gap-4 text-xs font-bold text-gray-700">
-                  <div className="flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl border border-gray-100 shadow-xs">
-                    <CheckCircle2 className="h-4 w-4 text-green-500" />
-                    <span>15+ Durban Schools</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl border border-gray-100 shadow-xs">
-                    <CheckCircle2 className="h-4 w-4 text-teal-600" />
-                    <span>Book Covering Included</span>
-                  </div>
-                  <div className="flex items-center gap-2 bg-white px-3.5 py-2 rounded-xl border border-gray-100 shadow-xs">
-                    <CheckCircle2 className="h-4 w-4 text-purple-600" />
-                    <span>Custom Child Name Labels</span>
-                  </div>
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-white/10">
+                  <CheckCircle2 className="h-4 w-4 text-teal-400" />
+                  <span>Book Covering Included</span>
                 </div>
-
-                {/* Main Hero Image */}
-                <div className="relative mt-6 rounded-3xl overflow-hidden border-4 border-white shadow-2xl max-w-lg mx-auto lg:mx-0">
-                  <div className="relative h-64 sm:h-72 w-full">
-                    <Image
-                      src="/brand/hero-kids.jpg"
-                      alt="Happy Durban kids with school stationery packs"
-                      fill
-                      priority
-                      className="object-cover"
-                    />
-                  </div>
-                  <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent flex items-end p-6">
-                    <p className="text-white text-xs font-black uppercase tracking-wider flex items-center gap-2">
-                      <Heart className="h-4 w-4 text-papaya fill-papaya" />
-                      <span>Tagline: "Avoid the Fuss, Trust us!" — Founded by Caron & Jess</span>
-                    </p>
-                  </div>
+                <div className="flex items-center gap-2 bg-white/10 backdrop-blur-sm px-4 py-2.5 rounded-xl border border-white/10">
+                  <CheckCircle2 className="h-4 w-4 text-purple-400" />
+                  <span>Custom Name Labels</span>
                 </div>
               </div>
 
-              {/* Right Column: Interactive School Picker Card */}
-              <div id="school-picker" className="lg:col-span-6 space-y-6">
-                <div className="relative">
-                  <div className="absolute -top-3 -right-3 z-20 bg-papaya text-jetblack text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full border-2 border-white shadow-md animate-pulse">
-                    Quick 1-Click Order
-                  </div>
-                  <SchoolPicker schools={formattedSchools} />
-                </div>
+              {/* ── 2 CTA Buttons ── */}
+              <div className="flex flex-col sm:flex-row items-start gap-4 pt-2">
+                {/* CTA 1: Find Your School List */}
+                <a
+                  href="#school-picker"
+                  className="group flex items-center gap-3 rounded-2xl bg-papaya px-8 py-4 text-base font-black text-jetblack shadow-xl hover:bg-caramel hover:shadow-papaya/30 hover:shadow-2xl transition-all"
+                >
+                  <BookOpen className="h-5 w-5" />
+                  <span>Find Your School List</span>
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </a>
 
-                {/* Secondary AI Scanner Box */}
-                <div className="rounded-3xl bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-6 shadow-xl flex flex-col sm:flex-row items-center gap-5 border border-purple-800">
-                  <div className="relative h-24 w-16 shrink-0 bg-white/10 rounded-2xl p-2 flex items-center justify-center">
-                    <Image
-                      src="/brand/preppi-mascot.svg"
-                      alt="Preppi Mascot"
-                      fill
-                      className="object-contain p-1"
-                    />
-                  </div>
-                  <div className="space-y-2 text-center sm:text-left">
-                    <div className="inline-flex items-center gap-1.5 text-[10px] font-black uppercase tracking-widest bg-purple-800 px-2.5 py-0.5 rounded-full text-papaya">
-                      <Zap className="h-3 w-3 fill-papaya" />
-                      Ask Preppi AI Scanner
-                    </div>
-                    <h4 className="font-extrabold text-white text-base">Have a paper or handwritten list?</h4>
-                    <p className="text-xs text-purple-200 leading-normal">
-                      Snap a photo of your child's stationery list. Preppi matches all items automatically & suggests cheaper options!
-                    </p>
-                    <Link
-                      href="/import"
-                      className="inline-flex items-center gap-2 text-xs font-black text-jetblack bg-papaya hover:bg-caramel px-4 py-2.5 rounded-xl transition-all cursor-pointer shadow-sm"
-                    >
-                      <span>Scan My Stationery List</span>
-                      <ArrowRight className="h-3.5 w-3.5" />
-                    </Link>
-                  </div>
-                </div>
+                {/* CTA 2: AI Smart Scanner */}
+                <Link
+                  href="/import"
+                  className="group flex items-center gap-3 rounded-2xl bg-white/10 backdrop-blur-md border-2 border-white/30 px-8 py-4 text-base font-black text-white shadow-xl hover:bg-purple-600 hover:border-purple-500 hover:shadow-purple-500/20 hover:shadow-2xl transition-all"
+                >
+                  <Zap className="h-5 w-5 fill-papaya text-papaya" />
+                  <span>Scan Your List with AI</span>
+                  <ArrowRight className="h-5 w-5 group-hover:translate-x-1 transition-transform" />
+                </Link>
+              </div>
+
+              {/* Founder tagline */}
+              <p className="flex items-center gap-2 text-xs font-bold text-white/60 pt-2">
+                <Heart className="h-4 w-4 text-papaya fill-papaya" />
+                <span>&quot;Avoid the Fuss, Trust Us!&quot; — Founded by Caron &amp; Jess in Durban</span>
+              </p>
+            </div>
+
+            {/* Mascot floating on the right side (desktop only) */}
+            <div className="hidden lg:block absolute right-12 bottom-16 z-10">
+              <div className="relative h-40 w-24 drop-shadow-2xl animate-bounce" style={{ animationDuration: "3s" }}>
+                <Image
+                  src="/brand/preppi-mascot.svg"
+                  alt="Preppi the Pencil Mascot"
+                  fill
+                  className="object-contain"
+                />
               </div>
             </div>
           </div>
@@ -276,6 +271,81 @@ export default async function Home() {
               <div className="space-y-1">
                 <div className="text-3xl sm:text-4xl font-black text-papaya">4.9 ★</div>
                 <div className="text-xs font-bold text-gray-300">Durban Mom Reviews</div>
+              </div>
+            </div>
+          </div>
+        </section>
+
+        {/* ── Find Your School List Section (moved from hero) ────────────────── */}
+        <section id="school-picker" className="py-20 bg-gradient-to-b from-amber-50 via-white to-white relative overflow-hidden">
+          {/* Decorative blobs */}
+          <div className="pointer-events-none absolute -top-20 -left-20 h-80 w-80 rounded-full bg-papaya/15 blur-3xl" />
+          <div className="pointer-events-none absolute bottom-0 -right-20 h-80 w-80 rounded-full bg-purple-200/20 blur-3xl" />
+
+          <div className="mx-auto max-w-7xl px-6 relative z-10">
+            <div className="grid grid-cols-1 lg:grid-cols-12 gap-12 items-center">
+              {/* Left: Heading & context */}
+              <div className="lg:col-span-5 space-y-6 text-center lg:text-left">
+                <div className="inline-flex items-center gap-2 rounded-full bg-amber-100 border border-amber-300/60 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-caramel">
+                  <BookOpen className="h-3.5 w-3.5" />
+                  <span>Quick 1-Click Order</span>
+                </div>
+                <h2 className="text-3xl sm:text-5xl font-black text-jetblack tracking-tight leading-tight">
+                  Find Your{" "}
+                  <span className="bg-gradient-to-r from-teal-700 via-purple-700 to-amber-500 bg-clip-text text-transparent">
+                    School List
+                  </span>
+                </h2>
+                <p className="text-gray-600 text-base leading-relaxed max-w-md mx-auto lg:mx-0">
+                  Select your child&apos;s school and grade below. We&apos;ll automatically load the required stationery list — every pen, book, and accessory matched to your school&apos;s exact requirements.
+                </p>
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-3 text-xs font-bold text-gray-600">
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-green-500" />
+                    <span>Exact school match</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-teal-600" />
+                    <span>Auto-populated cart</span>
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    <CheckCircle2 className="h-4 w-4 text-purple-600" />
+                    <span>Nothing missing</span>
+                  </div>
+                </div>
+
+                {/* Or use AI Scanner sub-prompt */}
+                <div className="rounded-2xl bg-gradient-to-r from-purple-900 to-indigo-900 text-white p-5 shadow-lg flex items-center gap-4 max-w-md mx-auto lg:mx-0">
+                  <div className="relative h-16 w-12 shrink-0">
+                    <Image
+                      src="/brand/preppi-mascot.svg"
+                      alt="Preppi Mascot"
+                      fill
+                      className="object-contain"
+                    />
+                  </div>
+                  <div className="space-y-1.5">
+                    <p className="text-xs font-bold text-purple-200">Got a paper list instead?</p>
+                    <Link
+                      href="/import"
+                      className="inline-flex items-center gap-2 text-xs font-black text-jetblack bg-papaya hover:bg-caramel px-4 py-2 rounded-xl transition-all"
+                    >
+                      <Zap className="h-3.5 w-3.5 fill-jetblack" />
+                      <span>Scan with AI</span>
+                      <ArrowRight className="h-3.5 w-3.5" />
+                    </Link>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right: SchoolPicker Card */}
+              <div className="lg:col-span-7">
+                <div className="relative">
+                  <div className="absolute -top-3 -right-3 z-20 bg-papaya text-jetblack text-xs font-black uppercase tracking-wider px-3.5 py-1.5 rounded-full border-2 border-white shadow-md animate-pulse">
+                    Quick 1-Click Order
+                  </div>
+                  <SchoolPicker schools={formattedSchools} />
+                </div>
               </div>
             </div>
           </div>
