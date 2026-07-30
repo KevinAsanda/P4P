@@ -6,6 +6,7 @@ import { revalidatePath } from 'next/cache';
 import { sendOrderPackedEmail, sendOrderDispatchedEmail, sendOrderDeliveredEmail } from '@/lib/notifications';
 import { writeAuditLog } from '@/lib/audit';
 import { uploadDeliveryProof } from '@/lib/storage';
+import { isQbConnected, syncOrderToQuickBooks } from '@/lib/quickbooks';
 
 // Helper to assert admin role
 async function assertAdmin() {
@@ -328,6 +329,15 @@ export async function markOrderAsPaid(orderId: string) {
     where: { id: orderId },
     data: { paymentStatus: 'paid' },
   });
+
+  // Automatically attempt QuickBooks sync if QuickBooks is connected
+  if (await isQbConnected()) {
+    try {
+      await syncOrderToQuickBooks(orderId);
+    } catch (err) {
+      console.error('[AutoSync] Background QB sync failed for order', orderId, err);
+    }
+  }
 
   await writeAuditLog('MARK_ORDER_AS_PAID', orderId, 'Payment status updated to paid manually');
 

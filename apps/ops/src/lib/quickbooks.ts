@@ -220,16 +220,15 @@ export async function getOrCreateQbCustomer(customer: {
   // Create new customer in QB
   console.log(`[QuickBooks] Customer ${customer.email} not found. Enrolling new account...`);
   const createPayload = {
-    FullyQualifiedName: displayName,
-    DisplayName: displayName,
+    DisplayName: displayName.slice(0, 100).replace(/:/g, '-'),
     GivenName: customer.firstName,
     FamilyName: customer.lastName,
     PrimaryEmailAddr: {
       Address: customer.email,
     },
-    PrimaryPhone: {
-      FreeFormNumber: customer.phone || '',
-    },
+    PrimaryPhone: customer.phone ? {
+      FreeFormNumber: customer.phone,
+    } : undefined,
   };
 
   const createResult = await qbRequest('customer', {

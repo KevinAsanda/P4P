@@ -3,6 +3,7 @@ import Image from 'next/image';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { prisma } from '@p4p/db';
 import { sendOrderReceivedEmail } from '@/lib/notifications';
+import { isQbConnected, syncOrderToQuickBooks } from '@/lib/quickbooks';
 
 interface PageProps {
   searchParams: Promise<{
@@ -49,6 +50,17 @@ export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
           sendOrderReceivedEmail(orderId).catch((err) =>
             console.error('Failed to send order received email:', err)
           );
+
+          // Automatically attempt QuickBooks sync in background if QuickBooks is connected
+          isQbConnected()
+            .then((connected) => {
+              if (connected) {
+                return syncOrderToQuickBooks(orderId);
+              }
+            })
+            .catch((err) =>
+              console.error('[AutoSync] Background QB sync failed for order:', orderId, err)
+            );
         }
       });
     } catch (err) {
