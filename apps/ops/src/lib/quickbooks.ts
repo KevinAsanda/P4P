@@ -255,9 +255,8 @@ export async function getOrCreateQbItem(product: {
   sku: string;
   unitPrice: number;
 }): Promise<string> {
-  // Query by name or SKU
   const safeSku = product.sku.replace(/'/g, "\\'");
-  const query = `select * from Item where Name = '${safeSku}' or SKU = '${safeSku}'`;
+  const query = `select * from Item where Name = '${safeSku}'`;
   const searchResult = await qbRequest(`query?query=${encodeURIComponent(query)}`);
 
   const qbItem = searchResult.QueryResponse?.Item?.[0];
