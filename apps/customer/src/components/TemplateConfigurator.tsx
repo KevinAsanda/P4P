@@ -260,7 +260,7 @@ export default function TemplateConfigurator({
                         type="button"
                         onClick={() => handleQtyChange(line.productId, -1)}
                         disabled={!cartItem.isSelected}
-                        className="px-3 py-1.5 hover:bg-gray-50 font-bold disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 transition-colors duration-150 hover:bg-gray-50 font-bold disabled:opacity-30 disabled:cursor-not-allowed"
                       >
                         -
                       </button>
@@ -269,7 +269,7 @@ export default function TemplateConfigurator({
                         type="button"
                         onClick={() => handleQtyChange(line.productId, 1)}
                         disabled={!cartItem.isSelected}
-                        className="px-3 py-1.5 hover:bg-gray-50 font-bold disabled:opacity-30 disabled:cursor-not-allowed"
+                        className="px-3 py-1.5 transition-colors duration-150 hover:bg-gray-50 font-bold disabled:opacity-30 disabled:cursor-not-allowed"
                       >
                         +
                       </button>
@@ -302,12 +302,20 @@ export default function TemplateConfigurator({
             {/* Book Covering Service */}
             {bookCoveringService && (
               <div
+                role="button"
+                tabIndex={0}
                 className={`border rounded-xl p-5 flex flex-col justify-between transition-all cursor-pointer select-none ${
                   includeBookCovering
                     ? 'border-papaya bg-papaya/5 shadow-sm'
                     : 'border-gray-200 bg-white hover:border-gray-300'
                 }`}
                 onClick={() => setIncludeBookCovering(!includeBookCovering)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setIncludeBookCovering(!includeBookCovering);
+                  }
+                }}
               >
                 <div>
                   <div className="flex items-start justify-between">
@@ -335,12 +343,20 @@ export default function TemplateConfigurator({
             {/* Custom Labeling Service */}
             {labelingService && (
               <div
+                role="button"
+                tabIndex={0}
                 className={`border rounded-xl p-5 flex flex-col justify-between transition-all cursor-pointer select-none ${
                   includeLabeling
                     ? 'border-papaya bg-papaya/5 shadow-sm'
                     : 'border-gray-200 bg-white hover:border-gray-300'
                 }`}
                 onClick={() => setIncludeLabeling(!includeLabeling)}
+                onKeyDown={(e) => {
+                  if (e.key === 'Enter' || e.key === ' ') {
+                    e.preventDefault();
+                    setIncludeLabeling(!includeLabeling);
+                  }
+                }}
               >
                 <div>
                   <div className="flex items-start justify-between">

@@ -53,7 +53,7 @@ export default function SchoolPicker({ schools }: SchoolPickerProps) {
       <div className="space-y-4">
         {/* School Dropdown */}
         <div className="space-y-2">
-          <label htmlFor="school-select" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+          <label htmlFor="school-select" className="block text-sm font-semibold text-gray-600">
             1. Select School
           </label>
           <div className="relative">
@@ -70,15 +70,13 @@ export default function SchoolPicker({ schools }: SchoolPickerProps) {
                 </option>
               ))}
             </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400">
-              ▼
-            </div>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400" aria-hidden="true"><svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg></div>
           </div>
         </div>
 
         {/* Grade Dropdown */}
         <div className="space-y-2">
-          <label htmlFor="grade-select" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+          <label htmlFor="grade-select" className="block text-sm font-semibold text-gray-600">
             2. Select Grade
           </label>
           <div className="relative">
@@ -98,9 +96,7 @@ export default function SchoolPicker({ schools }: SchoolPickerProps) {
                 </option>
               ))}
             </select>
-            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400">
-              ▼
-            </div>
+            <div className="pointer-events-none absolute inset-y-0 right-0 flex items-center pr-4 text-gray-400" aria-hidden="true"><svg className="h-4 w-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M19 9l-7 7-7-7" /></svg></div>
           </div>
         </div>
       </div>

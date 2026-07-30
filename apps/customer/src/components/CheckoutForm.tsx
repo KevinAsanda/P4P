@@ -98,7 +98,7 @@ export default function CheckoutForm({ prefilledCustomer }: CheckoutFormProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label htmlFor="customerFirstName" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+              <label htmlFor="customerFirstName" className="block text-sm font-semibold text-gray-600">
                 First Name
               </label>
               <input
@@ -111,7 +111,7 @@ export default function CheckoutForm({ prefilledCustomer }: CheckoutFormProps) {
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="customerLastName" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+              <label htmlFor="customerLastName" className="block text-sm font-semibold text-gray-600">
                 Last Name
               </label>
               <input
@@ -127,7 +127,7 @@ export default function CheckoutForm({ prefilledCustomer }: CheckoutFormProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label htmlFor="customerEmail" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+              <label htmlFor="customerEmail" className="block text-sm font-semibold text-gray-600">
                 Email Address
               </label>
               <input
@@ -140,7 +140,7 @@ export default function CheckoutForm({ prefilledCustomer }: CheckoutFormProps) {
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="customerPhone" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+              <label htmlFor="customerPhone" className="block text-sm font-semibold text-gray-600">
                 Contact Phone
               </label>
               <input
@@ -169,7 +169,7 @@ export default function CheckoutForm({ prefilledCustomer }: CheckoutFormProps) {
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label htmlFor="studentFirstName" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+              <label htmlFor="studentFirstName" className="block text-sm font-semibold text-gray-600">
                 Student First Name
               </label>
               <input
@@ -182,7 +182,7 @@ export default function CheckoutForm({ prefilledCustomer }: CheckoutFormProps) {
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="studentLastName" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+              <label htmlFor="studentLastName" className="block text-sm font-semibold text-gray-600">
                 Student Last Name
               </label>
               <input
@@ -221,7 +221,7 @@ export default function CheckoutForm({ prefilledCustomer }: CheckoutFormProps) {
 
           <div className="space-y-4">
             <div className="space-y-1">
-              <label className="block text-xs font-black uppercase tracking-wider text-gray-500">
+              <label className="block text-sm font-semibold text-gray-600">
                 Fulfillment Method
               </label>
               <div className="grid grid-cols-2 gap-4">
@@ -254,7 +254,7 @@ export default function CheckoutForm({ prefilledCustomer }: CheckoutFormProps) {
             </div>
 
             <div className="space-y-1">
-              <label htmlFor="deliveryAddress" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+              <label htmlFor="deliveryAddress" className="block text-sm font-semibold text-gray-600">
                 Delivery Address (Durban regions only)
               </label>
               <textarea

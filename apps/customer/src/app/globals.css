@@ -8,7 +8,30 @@
   --foreground: var(--color-jetblack);
 }
 
+html {
+  scroll-behavior: smooth;
+}
+
 body {
   background-color: var(--background);
   color: var(--foreground);
+}
+
+/* Scrolling announcement bar */
+@keyframes scroll-left {
+  0% {
+    transform: translateX(0);
+  }
+  100% {
+    transform: translateX(-50%);
+  }
+}
+
+.announcement-scroll {
+  display: flex;
+  animation: scroll-left 30s linear infinite;
+}
+
+.announcement-scroll:hover {
+  animation-play-state: paused;
 }

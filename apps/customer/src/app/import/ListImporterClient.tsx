@@ -346,7 +346,7 @@ export default function ListImporterClient({ schools, catalog }: ListImporterCli
               
               {/* File upload drag drop block */}
               <div className="space-y-2">
-                <label className="block text-xs font-black uppercase tracking-wider text-gray-500">
+                <label className="block text-sm font-semibold text-gray-600">
                   Upload Stationery List (PDF or Photo)
                 </label>
                 <div
@@ -391,7 +391,7 @@ export default function ListImporterClient({ schools, catalog }: ListImporterCli
 
               {/* Pasted text list alternative */}
               <div className="space-y-2">
-                <label htmlFor="textList" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+                <label htmlFor="textList" className="block text-sm font-semibold text-gray-600">
                   Or Paste List Items
                 </label>
                 <textarea
@@ -428,7 +428,7 @@ export default function ListImporterClient({ schools, catalog }: ListImporterCli
 
             <div className="space-y-4 pt-2">
               <div className="space-y-1">
-                <label htmlFor="school" className="block text-[10px] font-black uppercase tracking-wider text-gray-400">
+                <label htmlFor="school" className="block text-xs font-semibold text-gray-500">
                   Select School (Optional)
                 </label>
                 <select
@@ -447,7 +447,7 @@ export default function ListImporterClient({ schools, catalog }: ListImporterCli
               </div>
 
               <div className="space-y-1">
-                <label htmlFor="grade" className="block text-[10px] font-black uppercase tracking-wider text-gray-400">
+                <label htmlFor="grade" className="block text-xs font-semibold text-gray-500">
                   Select Grade (Optional)
                 </label>
                 <select
@@ -561,7 +561,7 @@ export default function ListImporterClient({ schools, catalog }: ListImporterCli
                                   : 'bg-red-500'
                               }`}
                             />
-                            <span className="font-black text-gray-500 uppercase tracking-wide">
+                            <span className="font-semibold text-gray-500">
                               {item.confidence} Confidence Match
                             </span>
                             {item.note && <span className="text-gray-400">• {item.note}</span>}
@@ -635,7 +635,7 @@ export default function ListImporterClient({ schools, catalog }: ListImporterCli
                         className="border border-papaya/20 bg-papaya-light/5 p-4 rounded-xl flex flex-col justify-between gap-3"
                       >
                         <div className="space-y-1">
-                          <p className="text-[10px] font-black text-caramel uppercase tracking-wide leading-none">
+                          <p className="text-[10px] font-bold text-caramel leading-none">
                             Switch & Save R {sub.priceSaving.toFixed(2)}
                           </p>
                           <h4 className="font-extrabold text-xs text-jetblack leading-tight mt-1.5">

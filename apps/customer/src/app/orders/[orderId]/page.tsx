@@ -119,7 +119,7 @@ export default async function OrderPage({ params }: PageProps) {
             {/* Delivery & Student Overview */}
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6 border-b border-gray-100 pb-6">
               <div className="space-y-3">
-                <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                <h4 className="text-xs font-semibold text-gray-500 flex items-center gap-1.5">
                   <User className="h-3.5 w-3.5" />
                   Student & Parent
                 </h4>
@@ -137,7 +137,7 @@ export default async function OrderPage({ params }: PageProps) {
               </div>
 
               <div className="space-y-3">
-                <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+                <h4 className="text-xs font-semibold text-gray-500 flex items-center gap-1.5">
                   <Truck className="h-3.5 w-3.5" />
                   Fulfillment Location
                 </h4>
@@ -155,7 +155,7 @@ export default async function OrderPage({ params }: PageProps) {
 
             {/* Line Items */}
             <div className="space-y-3">
-              <h4 className="text-xs font-black uppercase tracking-wider text-gray-400 flex items-center gap-1.5">
+              <h4 className="text-xs font-semibold text-gray-500 flex items-center gap-1.5">
                 <ShoppingBag className="h-3.5 w-3.5" />
                 Line Items Invoice
               </h4>

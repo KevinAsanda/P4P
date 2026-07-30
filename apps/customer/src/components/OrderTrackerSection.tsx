@@ -59,18 +59,14 @@ export default function OrderTrackerSection() {
   const currentStep = getStepStatus(result?.fulfillmentStatus);
 
   return (
-    <section id="track-order" className="py-16 bg-gradient-to-b from-amber-50/50 via-white to-amber-50/30">
+    <section id="track-order" className="py-16 bg-gray-50">
       <div className="mx-auto max-w-7xl px-6">
         <div className="mx-auto max-w-3xl text-center space-y-4">
-          <div className="inline-flex items-center gap-2 rounded-full bg-papaya/20 border border-papaya/40 px-4 py-1.5 text-xs font-black uppercase tracking-wider text-caramel">
-            <Sparkles className="h-3.5 w-3.5" />
-            <span>Real-time Order Tracker</span>
-          </div>
           <h2 className="text-3xl font-black text-jetblack sm:text-5xl tracking-tight">
             Track Your Child's Stationery Pack
           </h2>
           <p className="text-base text-gray-600 max-w-xl mx-auto">
-            Enter your order reference ID (e.g. <code className="bg-amber-100 px-1.5 py-0.5 rounded text-amber-900 font-mono text-xs">P4P-...</code>) or billing email address to view live packing and delivery updates.
+            Enter your order reference ID (e.g. <code className="bg-amber-100 px-1.5 py-0.5 rounded text-amber-900 font-mono text-xs">P4P-...</code>) or billing email address to check your packing and delivery status.
           </p>
 
           {/* Search Form */}
@@ -79,6 +75,7 @@ export default function OrderTrackerSection() {
               <Search className="pointer-events-none absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-gray-400" />
               <input
                 type="text"
+                aria-label="Order reference or email"
                 value={query}
                 onChange={(e) => setQuery(e.target.value)}
                 placeholder="Enter Order ID or Email address..."
@@ -102,7 +99,7 @@ export default function OrderTrackerSection() {
                   {/* Status Header */}
                   <div className="flex flex-col sm:flex-row sm:items-center justify-between border-b border-gray-100 pb-4 gap-2">
                     <div>
-                      <span className="text-xs font-black uppercase text-gray-400 tracking-wider">Order Reference</span>
+                      <span className="text-xs font-semibold text-gray-500">Order Reference</span>
                       <h4 className="text-lg font-black text-jetblack">{result.orderId}</h4>
                     </div>
                     <div className="flex items-center gap-2">
@@ -133,8 +130,8 @@ export default function OrderTrackerSection() {
 
                   {/* Progress Bar Steps */}
                   <div className="pt-4 border-t border-gray-100 space-y-3">
-                    <span className="text-xs font-black uppercase text-gray-400 tracking-wider">Fulfillment Progress</span>
-                    <div className="grid grid-cols-4 gap-2 text-center">
+                    <span className="text-xs font-semibold text-gray-500">Fulfillment Progress</span>
+                    <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 text-center">
                       {[
                         { step: 1, label: 'Order Registered', icon: Clock },
                         { step: 2, label: 'Packed & Labeled', icon: Package },
@@ -155,7 +152,7 @@ export default function OrderTrackerSection() {
                             >
                               <Icon className="h-5 w-5" />
                             </div>
-                            <span className={`text-[10px] font-extrabold leading-tight ${isDone ? 'text-jetblack' : 'text-gray-400'}`}>
+                            <span className={`text-[11px] font-bold leading-tight ${isDone ? 'text-jetblack' : 'text-gray-400'}`}>
                               {item.label}
                             </span>
                           </div>

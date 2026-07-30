@@ -130,7 +130,7 @@ export default async function TemplatePage({ params }: PageProps) {
         <section className="bg-gradient-to-b from-papaya-light/20 to-white py-12">
           <div className="mx-auto max-w-7xl px-6">
             <div className="space-y-2 text-center sm:text-left">
-              <span className="text-xs font-black uppercase tracking-wider text-caramel">
+              <span className="text-sm font-semibold text-caramel">
                 {serializedTemplate.school.name}
               </span>
               <h1 className="text-3xl font-extrabold tracking-tight text-jetblack sm:text-5xl">

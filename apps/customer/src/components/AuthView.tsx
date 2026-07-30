@@ -82,7 +82,7 @@ export default function AuthView({ redirectTo = '/' }: AuthViewProps) {
         {activeTab === 'signup' && (
           <div className="grid grid-cols-2 gap-4">
             <div className="space-y-1">
-              <label htmlFor="firstName" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+              <label htmlFor="firstName" className="block text-sm font-semibold text-gray-600">
                 First Name
               </label>
               <input
@@ -94,7 +94,7 @@ export default function AuthView({ redirectTo = '/' }: AuthViewProps) {
               />
             </div>
             <div className="space-y-1">
-              <label htmlFor="lastName" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+              <label htmlFor="lastName" className="block text-sm font-semibold text-gray-600">
                 Last Name
               </label>
               <input
@@ -110,7 +110,7 @@ export default function AuthView({ redirectTo = '/' }: AuthViewProps) {
 
         {/* Email Address */}
         <div className="space-y-1">
-          <label htmlFor="email" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+          <label htmlFor="email" className="block text-sm font-semibold text-gray-600">
             Email Address
           </label>
           <input
@@ -124,7 +124,7 @@ export default function AuthView({ redirectTo = '/' }: AuthViewProps) {
 
         {/* Password */}
         <div className="space-y-1">
-          <label htmlFor="password" className="block text-xs font-black uppercase tracking-wider text-gray-500">
+          <label htmlFor="password" className="block text-sm font-semibold text-gray-600">
             Password
           </label>
           <input
