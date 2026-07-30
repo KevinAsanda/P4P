@@ -2,6 +2,7 @@
 
 import React, { useState, useTransition } from 'react';
 import { syncOrderToQuickBooksAction, verifyInvoiceStatusAction } from '@/app/qb-actions';
+import { markOrderAsPaid } from '@/app/crud-actions';
 import {
   CheckCircle,
   AlertCircle,
@@ -25,10 +26,11 @@ export default function QbSyncControl({
   orderId,
   initialSyncStatus,
   invoiceId,
-  paymentStatus,
+  paymentStatus: initialPaymentStatus,
   activeRole,
 }: QbSyncControlProps) {
   const [syncStatus, setSyncStatus] = useState(initialSyncStatus);
+  const [paymentStatus, setPaymentStatus] = useState(initialPaymentStatus);
   const [qbInvoiceId, setQbInvoiceId] = useState(invoiceId);
   const [isPending, startTransition] = useTransition();
   const [verificationDetails, setVerificationDetails] = useState<{
@@ -40,6 +42,18 @@ export default function QbSyncControl({
   const [showVerification, setShowVerification] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
+  const handleMarkPaid = () => {
+    setError(null);
+    startTransition(async () => {
+      try {
+        await markOrderAsPaid(orderId);
+        setPaymentStatus('paid');
+      } catch (err: any) {
+        setError(err.message || 'Failed to update payment status.');
+      }
+    });
+  };
+
   // Redact QuickBooks controls completely for Warehouse staff (as per RBAC Section 4)
   if (activeRole === 'warehouse') {
     return null;
@@ -48,9 +62,18 @@ export default function QbSyncControl({
   // Only allow syncing for paid orders
   if (paymentStatus !== 'paid') {
     return (
-      <span className="text-[10px] font-bold text-gray-400 uppercase tracking-wider">
-        Unpaid (No Sync)
-      </span>
+      <div className="flex items-center gap-1.5">
+        <span className="text-[10px] font-bold text-amber-700 bg-amber-50 border border-amber-200 px-1.5 py-0.5 rounded-full uppercase tracking-wider">
+          Unpaid
+        </span>
+        <button
+          onClick={handleMarkPaid}
+          disabled={isPending}
+          className="text-[10px] font-bold text-green-700 hover:text-green-900 underline cursor-pointer disabled:opacity-50"
+        >
+          {isPending ? 'Updating...' : 'Mark Paid'}
+        </button>
+      </div>
     );
   }
 
@@ -176,7 +199,9 @@ export default function QbSyncControl({
               </div>
             </div>
           ) : (
-            <p className="text-[10px] text-red-500 font-bold">Failed to load verification logs.</p>
+            <p className="text-[10px] text-red-500 font-bold leading-tight">
+              {error || 'Failed to load verification logs.'}
+            </p>
           )}
         </div>
       )}

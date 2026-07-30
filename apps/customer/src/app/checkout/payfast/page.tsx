@@ -1,4 +1,5 @@
 import { notFound, redirect } from 'next/navigation';
+import { headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { prisma } from '@p4p/db';
 import { generatePayfastSignature } from '@/lib/payfast';
@@ -56,7 +57,11 @@ export default async function PayFastRedirectPage({ searchParams }: PageProps) {
     ? 'https://www.payfast.co.za/eng/process'
     : 'https://sandbox.payfast.co.za/eng/process';
 
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3000';
+  const headersList = await headers();
+  const host = headersList.get('x-forwarded-host') || headersList.get('host') || 'p4p-customer.onrender.com';
+  const proto = headersList.get('x-forwarded-proto') || 'https';
+  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || process.env.NEXT_PUBLIC_CUSTOMER_URL || `${proto}://${host}`;
+
   const returnUrl = `${siteUrl}/checkout/success?orderId=${order.id}`;
   const cancelUrl = `${siteUrl}/checkout/cancel?orderId=${order.id}`;
   const notifyUrl = `${siteUrl}/api/payments/payfast-itn`;

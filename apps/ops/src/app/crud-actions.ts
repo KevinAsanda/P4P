@@ -321,4 +321,18 @@ export async function confirmDelivery(
   revalidatePath('/');
 }
 
+export async function markOrderAsPaid(orderId: string) {
+  await assertStaff();
+
+  await prisma.salesOrder.update({
+    where: { id: orderId },
+    data: { paymentStatus: 'paid' },
+  });
+
+  await writeAuditLog('MARK_ORDER_AS_PAID', orderId, 'Payment status updated to paid manually');
+
+  revalidatePath('/orders');
+  revalidatePath('/');
+}
+
 
