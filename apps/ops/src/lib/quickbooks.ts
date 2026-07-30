@@ -278,14 +278,13 @@ export async function getOrCreateQbItem(product: {
   }
 
   const createPayload = {
-    Name: product.sku,
+    Name: `${product.itemName} (${product.sku})`.slice(0, 100).replace(/:/g, '-'),
     Description: product.itemName,
     Active: true,
-    Type: 'Service', // Non-Inventory or Service makes local testing simple
+    Type: 'Service',
     UnitPrice: product.unitPrice,
     IncomeAccountRef: {
       value: incomeAccount.Id,
-      name: incomeAccount.Name,
     },
     SKU: product.sku,
   };
