@@ -1,6 +1,23 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveQbTokens } from '@/lib/quickbooks';
 
+function getPublicOrigin(request: NextRequest): string {
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
+  
+  if (forwardedHost) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+  if (process.env.QUICKBOOKS_REDIRECT_URI) {
+    try {
+      return new URL(process.env.QUICKBOOKS_REDIRECT_URI).origin;
+    } catch {
+      // ignore
+    }
+  }
+  return new URL(request.url).origin;
+}
+
 export async function GET(request: NextRequest) {
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
@@ -9,7 +26,7 @@ export async function GET(request: NextRequest) {
 
   if (error) {
     console.warn('[QuickBooks Callback] Access request denied by user:', error);
-    const origin = new URL(request.url).origin;
+    const origin = getPublicOrigin(request);
     return NextResponse.redirect(`${origin}/?qb_error=${error}`);
   }
 
@@ -61,8 +78,8 @@ export async function GET(request: NextRequest) {
 
     console.log('[QuickBooks Callback] Token exchange successful. Connected Realm ID:', realmId);
 
-    // Redirect user back to the admin overview page with a connected success query
-    const origin = new URL(request.url).origin;
+    // Determine public origin for redirect (handling Render reverse proxies where request.url is localhost:10000)
+    const origin = getPublicOrigin(request);
     return NextResponse.redirect(`${origin}/?qb_connected=true`);
   } catch (err: any) {
     console.error('[QuickBooks Callback Exception]:', err);
