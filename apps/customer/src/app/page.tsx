@@ -98,10 +98,10 @@ export default async function Home() {
 
       {/* ── Sticky Header Navigation ───────────────────────────────────────── */}
       <header className="sticky top-0 z-50 bg-white/90 backdrop-blur-md border-b border-amber-100 shadow-sm">
-        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3.5">
-          {/* Logo */}
-          <Link href="/" className="flex items-center gap-3 group">
-            <div className="relative h-12 w-48 transition-transform group-hover:scale-105">
+        <div className="mx-auto flex max-w-7xl items-center justify-between px-6 py-3">
+          {/* Logo — larger for brand presence */}
+          <Link href="/" className="flex items-center gap-3 group shrink-0">
+            <div className="relative h-14 w-56 transition-transform group-hover:scale-105">
               <Image
                 src="/brand/p4p-logo.png"
                 alt="PREPPED 4 PREP Logo"
@@ -113,7 +113,7 @@ export default async function Home() {
           </Link>
 
           {/* Navigation Links */}
-          <nav className="hidden lg:flex items-center gap-8 text-sm font-bold text-gray-700">
+          <nav className="hidden lg:flex items-center gap-7 text-sm font-bold text-gray-700">
             <a href="#school-picker" className="hover:text-caramel transition-colors">
               Find My School
             </a>
@@ -132,22 +132,14 @@ export default async function Home() {
             </a>
           </nav>
 
-          {/* Action CTAs */}
-          <div className="flex items-center gap-3">
-            <Link
-              href="/login"
-              className="hidden sm:inline-flex text-xs font-bold text-gray-700 hover:text-jetblack px-3.5 py-2 rounded-xl border border-gray-200 hover:border-gray-300 transition-all"
-            >
-              Parent Portal
-            </Link>
-            <a
-              href="#school-picker"
-              className="flex items-center gap-2 rounded-2xl bg-papaya px-5 py-2.5 text-xs font-black text-jetblack hover:bg-caramel hover:shadow-md transition-all cursor-pointer"
-            >
-              <span>Get School Pack</span>
-              <ArrowRight className="h-4 w-4" />
-            </a>
-          </div>
+          {/* Single primary CTA */}
+          <a
+            href="#school-picker"
+            className="flex items-center gap-2 rounded-2xl bg-papaya px-5 py-2.5 text-xs font-black text-jetblack hover:bg-caramel hover:shadow-md transition-all cursor-pointer shrink-0"
+          >
+            <span>Get School Pack</span>
+            <ArrowRight className="h-4 w-4" />
+          </a>
         </div>
       </header>
 
