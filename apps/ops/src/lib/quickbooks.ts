@@ -206,7 +206,9 @@ export async function getOrCreateQbCustomer(customer: {
   email: string;
   phone: string | null;
 }): Promise<string> {
-  const query = `select * from Customer where PrimaryEmailAddr.Address = '${customer.email}'`;
+  const displayName = `${customer.firstName} ${customer.lastName} (${customer.email})`;
+  const safeDisplayName = displayName.replace(/'/g, "\\'");
+  const query = `select * from Customer where DisplayName = '${safeDisplayName}'`;
   const searchResult = await qbRequest(`query?query=${encodeURIComponent(query)}`);
 
   const qbCustomer = searchResult.QueryResponse?.Customer?.[0];
@@ -218,15 +220,15 @@ export async function getOrCreateQbCustomer(customer: {
   // Create new customer in QB
   console.log(`[QuickBooks] Customer ${customer.email} not found. Enrolling new account...`);
   const createPayload = {
-    FullyQualifiedName: `${customer.firstName} ${customer.lastName} (${customer.email})`,
-    DisplayName: `${customer.firstName} ${customer.lastName} (${customer.email})`,
+    FullyQualifiedName: displayName,
+    DisplayName: displayName,
     GivenName: customer.firstName,
     FamilyName: customer.lastName,
     PrimaryEmailAddr: {
       Address: customer.email,
     },
     PrimaryPhone: {
-      FreeFormNumber: decryptValue(customer.phone) || '',
+      FreeFormNumber: customer.phone || '',
     },
   };
 
@@ -254,7 +256,8 @@ export async function getOrCreateQbItem(product: {
   unitPrice: number;
 }): Promise<string> {
   // Query by name or SKU
-  const query = `select * from Item where Name = '${product.sku}' or SKU = '${product.sku}'`;
+  const safeSku = product.sku.replace(/'/g, "\\'");
+  const query = `select * from Item where Name = '${safeSku}' or SKU = '${safeSku}'`;
   const searchResult = await qbRequest(`query?query=${encodeURIComponent(query)}`);
 
   const qbItem = searchResult.QueryResponse?.Item?.[0];
@@ -371,8 +374,6 @@ export async function syncOrderToQuickBooks(orderId: string) {
       },
       Line: linesPayload,
       PrivateNote: `Prepped 4 Prep internal payment order reference: #${order.id}`,
-      // Optionally mark as paid since we already collected the EFT/Card webhook payment
-      Deposit: order.totalAmount.toNumber(), 
     };
 
     console.log('[QuickBooks] Sending Invoice POST payload...');
