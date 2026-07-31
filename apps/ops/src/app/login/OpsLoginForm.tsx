@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition, useEffect } from 'react';
+import Link from 'next/link';
 import { opsLogin } from '@/app/auth-actions';
 import { createClient } from '@/lib/supabase/client';
 import { Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
@@ -69,9 +70,14 @@ export default function OpsLoginForm({ redirectTo }: OpsLoginFormProps) {
 
       {/* Password */}
       <div className="space-y-1.5">
-        <label htmlFor="ops-password" className="block text-xs font-black uppercase tracking-wider text-gray-400">
-          Password
-        </label>
+        <div className="flex items-center justify-between">
+          <label htmlFor="ops-password" className="block text-xs font-black uppercase tracking-wider text-gray-400">
+            Password
+          </label>
+          <Link href="/forgot-password" className="text-xs font-bold text-papaya hover:underline">
+            Forgot password?
+          </Link>
+        </div>
         <div className="relative">
           <Lock className="pointer-events-none absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-500" />
           <input

@@ -1,6 +1,7 @@
 'use client';
 
 import { useState, useTransition } from 'react';
+import Link from 'next/link';
 import { login, signup } from '@/app/auth-actions';
 import { LogIn, UserPlus } from 'lucide-react';
 
@@ -124,9 +125,16 @@ export default function AuthView({ redirectTo = '/' }: AuthViewProps) {
 
         {/* Password */}
         <div className="space-y-1">
-          <label htmlFor="password" className="block text-sm font-semibold text-gray-600">
-            Password
-          </label>
+          <div className="flex items-center justify-between">
+            <label htmlFor="password" className="block text-sm font-semibold text-gray-600">
+              Password
+            </label>
+            {activeTab === 'login' && (
+              <Link href="/forgot-password" className="text-xs font-semibold text-caramel hover:underline">
+                Forgot password?
+              </Link>
+            )}
+          </div>
           <input
             type="password"
             id="password"

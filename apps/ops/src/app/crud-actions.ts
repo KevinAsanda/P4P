@@ -141,6 +141,43 @@ export async function updateProductStock(productId: string, qty: number) {
   revalidatePath('/');
 }
 
+export async function updateProduct(formData: FormData) {
+  await assertAdmin();
+
+  const productId = formData.get('productId') as string;
+  const itemName = formData.get('itemName') as string;
+  const sku = formData.get('sku') as string;
+  const brand = formData.get('brand') as string;
+  const price = formData.get('unitPrice') as string;
+  const qty = formData.get('qtyOnHand') as string;
+  const threshold = formData.get('reorderThreshold') as string;
+  const category = formData.get('category') as string;
+  const supplierId = formData.get('supplierId') as string;
+
+  if (!productId || !itemName || !sku || !price || !category) {
+    throw new Error('Required fields: Product ID, Item Name, SKU, Price, Category');
+  }
+
+  await prisma.product.update({
+    where: { id: productId },
+    data: {
+      itemName,
+      sku,
+      brand: brand || null,
+      unitPrice: parseFloat(price) || 0,
+      qtyOnHand: qty ? Number(qty) : 0,
+      reorderThreshold: threshold ? Number(threshold) : 0,
+      category,
+      supplierId: supplierId || null,
+    },
+  });
+
+  await writeAuditLog('UPDATE_PRODUCT', productId, `Name: ${itemName}, SKU: ${sku}, Price: ${price}`);
+
+  revalidatePath('/products');
+  revalidatePath('/');
+}
+
 /* --- Template CRUD Actions --- */
 export async function createSchoolTemplate(formData: FormData) {
   await assertAdmin();
@@ -166,6 +203,126 @@ export async function createSchoolTemplate(formData: FormData) {
 
   await writeAuditLog('CREATE_SCHOOL_TEMPLATE', template.id, `Name: ${name}, Grade: ${gradeLevel}`);
 
+  revalidatePath('/templates');
+  return template.id;
+}
+
+export async function updateSchoolTemplate(templateId: string, formData: FormData) {
+  await assertAdmin();
+
+  const name = formData.get('name') as string;
+  const gradeLevel = formData.get('gradeLevel') as string;
+  const academicYear = formData.get('academicYear') as string;
+
+  if (!name || !gradeLevel || !academicYear) {
+    throw new Error('Name, Grade, and Academic Year are required.');
+  }
+
+  await prisma.schoolTemplate.update({
+    where: { id: templateId },
+    data: {
+      name,
+      gradeLevel,
+      academicYear: Number(academicYear),
+    },
+  });
+
+  await writeAuditLog('UPDATE_SCHOOL_TEMPLATE', templateId, `Name: ${name}, Grade: ${gradeLevel}`);
+
+  revalidatePath(`/templates/${templateId}`);
+  revalidatePath('/templates');
+}
+
+export async function addTemplateLine(
+  templateId: string,
+  productId: string,
+  quantityRequired: number,
+  isOptional: boolean = false
+) {
+  await assertAdmin();
+
+  const count = await prisma.templateLine.count({ where: { templateId } });
+
+  const line = await prisma.templateLine.create({
+    data: {
+      templateId,
+      productId,
+      quantityRequired: Number(quantityRequired) || 1,
+      isOptional: Boolean(isOptional),
+      displayOrder: count + 1,
+    },
+  });
+
+  await writeAuditLog('ADD_TEMPLATE_LINE', line.id, `Template: ${templateId}, Product: ${productId}`);
+
+  revalidatePath(`/templates/${templateId}`);
+  revalidatePath('/templates');
+}
+
+export async function updateTemplateLine(
+  lineId: string,
+  quantityRequired: number,
+  isOptional: boolean
+) {
+  await assertAdmin();
+
+  const line = await prisma.templateLine.update({
+    where: { id: lineId },
+    data: {
+      quantityRequired: Number(quantityRequired) || 1,
+      isOptional: Boolean(isOptional),
+    },
+  });
+
+  revalidatePath(`/templates/${line.templateId}`);
+  revalidatePath('/templates');
+}
+
+export async function removeTemplateLine(lineId: string) {
+  await assertAdmin();
+
+  const line = await prisma.templateLine.delete({
+    where: { id: lineId },
+  });
+
+  revalidatePath(`/templates/${line.templateId}`);
+  revalidatePath('/templates');
+}
+
+export async function importBatchTemplateLines(
+  templateId: string,
+  items: Array<{ productId: string; quantity: number; isOptional?: boolean }>
+) {
+  await assertAdmin();
+
+  let count = await prisma.templateLine.count({ where: { templateId } });
+
+  for (const item of items) {
+    if (!item.productId) continue;
+    const existing = await prisma.templateLine.findFirst({
+      where: { templateId, productId: item.productId },
+    });
+
+    if (existing) {
+      await prisma.templateLine.update({
+        where: { id: existing.id },
+        data: { quantityRequired: existing.quantityRequired + (item.quantity || 1) },
+      });
+    } else {
+      count++;
+      await prisma.templateLine.create({
+        data: {
+          templateId,
+          productId: item.productId,
+          quantityRequired: item.quantity || 1,
+          isOptional: Boolean(item.isOptional),
+          displayOrder: count,
+        },
+      });
+    }
+  }
+
+  revalidatePath(`/templates/${templateId}`);
   revalidatePath('/templates');
 }
 
