@@ -178,6 +178,65 @@ export async function updateProduct(formData: FormData) {
   revalidatePath('/');
 }
 
+export async function importBatchProducts(
+  products: Array<{
+    itemName: string;
+    sku: string;
+    brand?: string;
+    unitPrice: number;
+    qtyOnHand?: number;
+    reorderThreshold?: number;
+    category?: string;
+    supplierId?: string;
+  }>
+) {
+  await assertAdmin();
+
+  let importedCount = 0;
+  for (const item of products) {
+    if (!item.itemName || !item.sku) continue;
+
+    const existing = await prisma.product.findUnique({
+      where: { sku: item.sku.trim().toUpperCase() },
+    });
+
+    if (existing) {
+      await prisma.product.update({
+        where: { id: existing.id },
+        data: {
+          itemName: item.itemName,
+          brand: item.brand || existing.brand,
+          unitPrice: Number(item.unitPrice) || existing.unitPrice,
+          qtyOnHand: item.qtyOnHand !== undefined ? Number(item.qtyOnHand) : existing.qtyOnHand,
+          reorderThreshold: item.reorderThreshold !== undefined ? Number(item.reorderThreshold) : existing.reorderThreshold,
+          category: item.category || existing.category,
+          supplierId: item.supplierId || existing.supplierId,
+        },
+      });
+    } else {
+      await prisma.product.create({
+        data: {
+          itemName: item.itemName,
+          sku: item.sku.trim().toUpperCase(),
+          brand: item.brand || null,
+          unitPrice: Number(item.unitPrice) || 0,
+          qtyOnHand: Number(item.qtyOnHand) || 100,
+          reorderThreshold: Number(item.reorderThreshold) || 20,
+          category: item.category || 'Stationery',
+          supplierId: item.supplierId || null,
+        },
+      });
+    }
+    importedCount++;
+  }
+
+  await writeAuditLog('BATCH_IMPORT_PRODUCTS', 'bulk', `Imported/updated ${importedCount} products.`);
+
+  revalidatePath('/products');
+  revalidatePath('/');
+  return importedCount;
+}
+
 /* --- Template CRUD Actions --- */
 export async function createSchoolTemplate(formData: FormData) {
   await assertAdmin();
