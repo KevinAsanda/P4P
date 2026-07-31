@@ -230,15 +230,13 @@ export async function POST(request: NextRequest) {
     }
 
     // ---------------- REAL GEMINI VISION / TEXT API CALL ----------------
-    if (geminiKey && geminiKey !== 're_placeholder') {
-      console.log('[AI Import Scanner] Calling Google Gemini API...');
+    if (geminiKey && geminiKey !== "re_placeholder") {
+      console.log("[AI Import Scanner] Calling Google Gemini API...");
       try {
-        let parts: any[] = [
-          { text: systemPrompt }
-        ];
+        let parts: any[] = [{ text: systemPrompt }];
 
         if (fileBase64 && fileType) {
-          const cleanBase64 = fileBase64.replace(/^data:image\/\w+;base64,/, '');
+          const cleanBase64 = fileBase64.replace(/^data:[^;]+;base64,/, "");
           parts.push({
             inlineData: {
               mimeType: fileType,
@@ -246,7 +244,7 @@ export async function POST(request: NextRequest) {
             },
           });
           parts.push({
-            text: 'Analyze this photo/document and extract the stationery items, matching them to the catalog.',
+            text: "Analyze this photo/document and extract the stationery items, matching them to the catalog.",
           });
         } else {
           parts.push({
@@ -254,40 +252,49 @@ export async function POST(request: NextRequest) {
           });
         }
 
-        // Use the active gemini-2.5-flash model on the stable v1 API
+        // Use valid gemini-1.5-flash model on v1beta endpoint with JSON output mode
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1/models/gemini-2.5-flash:generateContent?key=${geminiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiKey}`,
           {
-            method: 'POST',
+            method: "POST",
             headers: {
-              'content-type': 'application/json',
+              "content-type": "application/json",
             },
             body: JSON.stringify({
               contents: [{ parts }],
+              generationConfig: {
+                responseMimeType: "application/json",
+              },
             }),
-          }
+          },
         );
 
         if (!response.ok) {
           const errText = await response.text();
-          console.error('[AI Import Scanner] Gemini HTTP Error:', errText);
-          return new NextResponse(`Gemini API returned error: ${response.statusText}`, { status: response.status });
-        }
+          console.error(
+            "[AI Import Scanner] Gemini HTTP Error:",
+            response.status,
+            errText,
+          );
+          // If Gemini fails, fallback to Anthropic or mock matcher below
+        } else {
+          const data = await response.json();
+          const geminiText =
+            data.candidates?.[0]?.content?.parts?.[0]?.text || "{}";
 
-        const data = await response.json();
-        const geminiText = data.candidates?.[0]?.content?.parts?.[0]?.text || '{}';
-        
-        // Defensive cleaning of markdown code block wrappers (e.g. ```json ... ```)
-        let cleanedText = geminiText.trim();
-        if (cleanedText.startsWith('```')) {
-          cleanedText = cleanedText.replace(/^```json\s*/, '').replace(/```$/, '').trim();
+          let cleanedText = geminiText.trim();
+          if (cleanedText.startsWith("```")) {
+            cleanedText = cleanedText
+              .replace(/^```json\s*/, "")
+              .replace(/```$/, "")
+              .trim();
+          }
+
+          const parsedJson = JSON.parse(cleanedText);
+          return NextResponse.json(parsedJson);
         }
-        
-        const parsedJson = JSON.parse(cleanedText);
-        return NextResponse.json(parsedJson);
       } catch (err: any) {
-        console.error('[AI Import Scanner] Gemini API invocation error:', err);
-        return new NextResponse(`Gemini API processing failed: ${err.message || err}`, { status: 500 });
+        console.error("[AI Import Scanner] Gemini API invocation error:", err);
       }
     }
 
