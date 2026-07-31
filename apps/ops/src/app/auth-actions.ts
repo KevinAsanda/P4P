@@ -1,7 +1,7 @@
 'use server';
 
 import { redirect } from 'next/navigation';
-import { cookies } from 'next/headers';
+import { cookies, headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getRealRole } from '@/lib/auth-utils';
@@ -88,8 +88,29 @@ export async function inviteStaffMember(state: any, formData: FormData) {
     return { error: 'Invalid role selected.' };
   }
 
+  // Determine public site URL (uses request headers, env vars, or Render production domain)
+  let siteUrl = 'https://p4p-ops.onrender.com';
+  if (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes('localhost')) {
+    siteUrl = process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '');
+  } else if (process.env.RENDER_EXTERNAL_URL) {
+    siteUrl = process.env.RENDER_EXTERNAL_URL.replace(/\/$/, '');
+  } else {
+    try {
+      const headerList = await cookies(); // Ensure async context access
+      const reqHeaders = await headers();
+      const host = reqHeaders.get('x-forwarded-host') || reqHeaders.get('host');
+      if (host && !host.includes('localhost')) {
+        const proto = reqHeaders.get('x-forwarded-proto') || 'https';
+        siteUrl = `${proto}://${host}`;
+      } else if (process.env.NODE_ENV === 'development' && host) {
+        siteUrl = `http://${host}`;
+      }
+    } catch {
+      // Fallback stays as Render production domain
+    }
+  }
+
   const adminClient = createAdminClient();
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || 'http://localhost:3001';
 
   // Step 1: Send the invite email (sets user_metadata.role)
   const { data, error } = await adminClient.auth.admin.inviteUserByEmail(email, {
