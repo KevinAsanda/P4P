@@ -1,7 +1,8 @@
 'use client';
 
-import { useState, useTransition } from 'react';
+import { useState, useTransition, useEffect } from 'react';
 import { opsLogin } from '@/app/auth-actions';
+import { createClient } from '@/lib/supabase/client';
 import { Lock, Mail, ArrowRight, Loader2 } from 'lucide-react';
 
 interface OpsLoginFormProps {
@@ -11,6 +12,21 @@ interface OpsLoginFormProps {
 export default function OpsLoginForm({ redirectTo }: OpsLoginFormProps) {
   const [error, setError] = useState<string | null>(null);
   const [isPending, startTransition] = useTransition();
+
+  // Listen for client-side implicit flow hash tokens (e.g. #access_token=...) from invite link redirects
+  useEffect(() => {
+    if (typeof window !== 'undefined' && window.location.hash) {
+      const hash = window.location.hash;
+      if (hash.includes('access_token=') || hash.includes('type=invite') || hash.includes('type=recovery')) {
+        const supabase = createClient();
+        supabase.auth.getSession().then(({ data: { session } }) => {
+          if (session?.user) {
+            window.location.href = redirectTo || '/';
+          }
+        });
+      }
+    }
+  }, [redirectTo]);
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

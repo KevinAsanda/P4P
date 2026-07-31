@@ -7,10 +7,15 @@ import Link from 'next/link';
 import { isQbConnected, getQbTokens } from '@/lib/quickbooks';
 import QbConnectionManager from '@/components/QbConnectionManager';
 
+import { redirect } from 'next/navigation';
+
 export const dynamic = 'force-dynamic';
 
 export default async function OverviewPage() {
   const { activeRole, isActualAdmin, userEmail } = await getAuthContext();
+  if (activeRole === 'warehouse') {
+    redirect('/packing');
+  }
   const permissions = PERMISSIONS[activeRole];
 
   // Initialize analytics variables

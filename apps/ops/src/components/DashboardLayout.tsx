@@ -4,7 +4,7 @@ import { useTransition } from 'react';
 import Link from 'next/link';
 import Image from 'next/image';
 import { usePathname } from 'next/navigation';
-import { opsSignout, setPreviewRole } from '@/app/auth-actions';
+import { opsSignout } from '@/app/auth-actions';
 import { OpsRole, PERMISSIONS } from '@/lib/rbac';
 import {
   LayoutDashboard,
@@ -17,7 +17,6 @@ import {
   ClipboardList,
   MapPin,
   LogOut,
-  Eye,
   Users,
 } from 'lucide-react';
 
@@ -37,15 +36,6 @@ export default function DashboardLayout({
   const pathname = usePathname();
   const [isPending, startTransition] = useTransition();
 
-  const handlePreviewChange = (e: React.ChangeEvent<HTMLSelectElement>) => {
-    const nextRole = e.target.value;
-    startTransition(async () => {
-      // 'admin' means "exit preview mode"
-      await setPreviewRole(nextRole === 'admin' ? null : nextRole);
-      window.location.reload();
-    });
-  };
-
   const handleSignOut = () => {
     startTransition(async () => {
       await opsSignout();
@@ -57,7 +47,7 @@ export default function DashboardLayout({
       name: 'Overview',
       href: '/',
       icon: LayoutDashboard,
-      visible: true,
+      visible: activeRole !== 'warehouse',
     },
     {
       name: 'Orders',
@@ -158,11 +148,7 @@ export default function DashboardLayout({
             </div>
             <div className="min-w-0">
               <p className="text-xs font-bold text-gray-900 capitalize truncate">
-                {isActualAdmin && activeRole !== 'admin' ? (
-                  <span className="text-caramel">Preview: {activeRole}</span>
-                ) : (
-                  `${activeRole} role`
-                )}
+                {activeRole} role
               </p>
               <p className="text-[10px] text-gray-400 truncate">{userEmail || 'Staff'}</p>
             </div>
@@ -203,32 +189,8 @@ export default function DashboardLayout({
             </span>
           </div>
 
-          {/* Right side: Admin Preview Mode + mobile sign out */}
+          {/* Right side: Mobile sign out */}
           <div className="flex items-center gap-3">
-            {/* Preview Mode — Admin Only */}
-            {isActualAdmin && (
-              <div className="flex items-center gap-2 bg-amber-50 border border-amber-200 px-3 py-1.5 rounded-xl">
-                <Eye className="h-3.5 w-3.5 text-amber-600" />
-                <label
-                  htmlFor="preview-role-switcher"
-                  className="text-[10px] font-black uppercase text-amber-600 tracking-wider"
-                >
-                  Preview:
-                </label>
-                <select
-                  id="preview-role-switcher"
-                  value={activeRole}
-                  onChange={handlePreviewChange}
-                  disabled={isPending}
-                  className="bg-transparent text-xs font-bold text-jetblack focus:outline-none cursor-pointer"
-                >
-                  <option value="admin">Admin (own view)</option>
-                  <option value="finance">Finance Staff</option>
-                  <option value="warehouse">Warehouse Staff</option>
-                </select>
-              </div>
-            )}
-
             {/* Mobile sign out */}
             <button
               onClick={handleSignOut}

@@ -2,8 +2,33 @@ import { type NextRequest, NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 import { cookies } from 'next/headers';
 
+function getPublicOrigin(request: NextRequest): string {
+  const forwardedHost = request.headers.get('x-forwarded-host');
+  const forwardedProto = request.headers.get('x-forwarded-proto') || 'https';
+  
+  if (forwardedHost && !forwardedHost.includes('localhost')) {
+    return `${forwardedProto}://${forwardedHost}`;
+  }
+  
+  if (process.env.RENDER_EXTERNAL_URL) {
+    return process.env.RENDER_EXTERNAL_URL.replace(/\/$/, '');
+  }
+
+  if (process.env.NEXT_PUBLIC_SITE_URL && !process.env.NEXT_PUBLIC_SITE_URL.includes('localhost')) {
+    return process.env.NEXT_PUBLIC_SITE_URL.replace(/\/$/, '');
+  }
+
+  const rawOrigin = new URL(request.url).origin;
+  if (rawOrigin.includes('localhost:10000') || rawOrigin.includes('localhost')) {
+    return 'https://p4p-ops.onrender.com';
+  }
+
+  return rawOrigin;
+}
+
 export async function GET(request: NextRequest) {
-  const { searchParams, origin } = new URL(request.url);
+  const origin = getPublicOrigin(request);
+  const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const next = searchParams.get('next') ?? '/';
   const error = searchParams.get('error');
@@ -56,6 +81,6 @@ export async function GET(request: NextRequest) {
     return NextResponse.redirect(`${origin}${next}`);
   }
 
-  // No code provided — something went wrong upstream
+  // No code parameter in query — redirect to login on public origin
   return NextResponse.redirect(`${origin}/login?error=auth_callback_failed`);
 }
