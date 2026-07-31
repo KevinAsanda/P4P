@@ -17,7 +17,11 @@ import {
   Truck,
   AlertCircle,
   Eye,
+  Smartphone,
+  X,
 } from 'lucide-react';
+import QrCodeSvg from '@/components/QrCodeSvg';
+import BarcodeSvg from '@/components/BarcodeSvg';
 import {
   updateOrderFulfillmentStatus,
   updateOrderLinePacked,
@@ -102,8 +106,61 @@ export default function PackingQueueClient({ initialOrders, activeRole }: Packin
   }>({ type: null, message: '' });
   const [showBoxNote, setShowBoxNote] = useState(false);
   const [highlightedLineId, setHighlightedLineId] = useState<string | null>(null);
+  const [showPhoneQrModal, setShowPhoneQrModal] = useState(false);
+  const [selectedBarcodeLine, setSelectedBarcodeLine] = useState<OrderLine | null>(null);
 
   const scanInputRef = useRef<HTMLInputElement>(null);
+
+  // Poll for phone scanner IoT events when packing session is open
+  useEffect(() => {
+    if (!selectedOrderId) return;
+
+    const interval = setInterval(async () => {
+      try {
+        const res = await fetch(`/api/packing/scan?orderId=${selectedOrderId}`);
+        if (res.ok) {
+          const data = await res.json();
+          if (data.packedLineIds && Array.isArray(data.packedLineIds)) {
+            const currentOrder = initialOrders.find((o) => o.id === selectedOrderId);
+            if (currentOrder) {
+              let newlyPackedItemName: string | null = null;
+              data.packedLineIds.forEach((packedId: string) => {
+                const line = currentOrder.orderLines.find((l) => l.id === packedId);
+                if (line && !line.isPacked) {
+                  line.isPacked = true;
+                  newlyPackedItemName = line.product.itemName;
+                  setHighlightedLineId(line.id);
+                  setTimeout(() => setHighlightedLineId(null), 2500);
+                }
+              });
+
+              if (newlyPackedItemName) {
+                playSound('success');
+                setFeedback({
+                  type: 'success',
+                  message: `📱 IoT Scan Verified: Packed "${newlyPackedItemName}"!`,
+                });
+                router.refresh();
+              }
+
+              if (data.isFullyPacked && currentOrder.fulfillmentStatus !== 'packed') {
+                playSound('complete');
+                setFeedback({
+                  type: 'complete',
+                  message: `Order Fully Packed! All ${data.totalLines} items verified via phone scanner. Ready for checkout box note.`,
+                });
+                router.refresh();
+              }
+            }
+          }
+        }
+      } catch {
+        // Silent poll
+      }
+    }, 1500);
+
+    return () => clearInterval(interval);
+  }, [selectedOrderId, initialOrders, router]);
 
   // Synthesize scan beep sounds using Web Audio API
   const playSound = (type: 'success' | 'error' | 'complete') => {
@@ -467,6 +524,14 @@ export default function PackingQueueClient({ initialOrders, activeRole }: Packin
 
             <div className="flex items-center gap-3">
               <button
+                onClick={() => setShowPhoneQrModal(true)}
+                className="inline-flex items-center gap-1.5 px-3.5 py-1.5 rounded-xl bg-jetblack text-papaya border border-amber-400 text-xs font-black hover:bg-caramel hover:text-white transition-all shadow-sm"
+              >
+                <Smartphone className="h-4 w-4 text-papaya" />
+                <span>Connect Phone Scanner</span>
+              </button>
+
+              <button
                 onClick={handleResetPacking}
                 className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl border border-gray-200 text-xs font-bold text-gray-600 bg-white hover:bg-red-50 hover:text-vermillion hover:border-red-200 transition-all"
               >
@@ -725,16 +790,32 @@ export default function PackingQueueClient({ initialOrders, activeRole }: Packin
                             </span>
                           </td>
                           <td className="px-6 py-4 text-right">
-                            <button
-                              onClick={() => handleManualToggle(line.id, line.isPacked)}
-                              className={`text-xs px-2.5 py-1.5 rounded-lg font-bold border transition-colors ${
-                                line.isPacked
-                                  ? 'bg-gray-100 hover:bg-gray-200 text-gray-600 border-gray-200'
-                                  : 'bg-papaya hover:bg-caramel text-jetblack hover:text-white border-transparent'
-                              }`}
-                            >
-                              {line.isPacked ? 'Unpack' : 'Pack Item'}
-                            </button>
+                            <div className="flex items-center justify-end gap-2">
+                              <button
+                                onClick={() => setSelectedBarcodeLine(line)}
+                                className="p-1.5 rounded-lg bg-gray-100 hover:bg-papaya/20 text-gray-700 hover:text-caramel border border-gray-200 text-xs font-bold flex items-center gap-1 transition-colors"
+                                title="View Barcode"
+                              >
+                                <Barcode className="h-4 w-4" />
+                                <span className="hidden sm:inline text-[11px]">Barcode</span>
+                              </button>
+                              <button
+                                onClick={() => {
+                                  if (!line.isPacked) {
+                                    setSelectedBarcodeLine(line);
+                                  } else {
+                                    handleManualToggle(line.id, true);
+                                  }
+                                }}
+                                className={`text-xs px-3 py-1.5 rounded-lg font-bold border transition-colors ${
+                                  line.isPacked
+                                    ? 'bg-gray-100 hover:bg-gray-200 text-gray-600 border-gray-200'
+                                    : 'bg-papaya hover:bg-caramel text-jetblack hover:text-white border-transparent shadow-xs'
+                                }`}
+                              >
+                                {line.isPacked ? 'Unpack' : 'Pack Item'}
+                              </button>
+                            </div>
                           </td>
                         </tr>
                       );
@@ -820,6 +901,109 @@ export default function PackingQueueClient({ initialOrders, activeRole }: Packin
                 >
                   Close Preview
                 </button>
+              </div>
+            </div>
+          )}
+          {/* Modal 1: Connect Phone Scanner (IoT QR Code) */}
+          {showPhoneQrModal && selectedOrder && (
+            <div className="fixed inset-0 z-50 bg-jetblack/70 backdrop-blur-xs flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border-2 border-papaya shadow-2xl space-y-6 relative animate-in fade-in zoom-in-95 duration-200">
+                <button
+                  onClick={() => setShowPhoneQrModal(false)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-jetblack p-1 rounded-full hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+
+                <div className="text-center space-y-2">
+                  <div className="mx-auto h-12 w-12 rounded-2xl bg-papaya/20 border border-papaya/40 flex items-center justify-center text-caramel">
+                    <Smartphone className="h-6 w-6" />
+                  </div>
+                  <h3 className="text-lg font-black text-jetblack">Connect Mobile Barcode Scanner</h3>
+                  <p className="text-xs text-gray-500 max-w-xs mx-auto">
+                    Point any smartphone camera at this QR code to turn your phone into a live IoT Barcode Scanner for this packing session.
+                  </p>
+                </div>
+
+                <div className="flex flex-col items-center justify-center space-y-3">
+                  <QrCodeSvg
+                    value={
+                      typeof window !== 'undefined'
+                        ? `${window.location.origin}/scan?orderId=${selectedOrder.id}`
+                        : `https://p4p-ops.onrender.com/scan?orderId=${selectedOrder.id}`
+                    }
+                    size={200}
+                  />
+                  <span className="text-[10px] font-mono text-gray-400 bg-gray-50 px-2 py-1 rounded border border-gray-200">
+                    Session: {selectedOrder.id.slice(0, 8)}...
+                  </span>
+                </div>
+
+                <div className="bg-amber-50 border border-amber-200 rounded-xl p-3 text-xs text-amber-900 leading-relaxed font-medium">
+                  💡 <strong>How it works:</strong> As you scan product barcodes with your phone camera, items on this desktop packing list will be verified and checked off in real time!
+                </div>
+
+                <button
+                  onClick={() => setShowPhoneQrModal(false)}
+                  className="w-full py-3 bg-jetblack text-white hover:bg-caramel rounded-xl text-xs font-black transition-all"
+                >
+                  Close QR Window
+                </button>
+              </div>
+            </div>
+          )}
+
+          {/* Modal 2: Product Barcode & Pack Verification Modal */}
+          {selectedBarcodeLine && (
+            <div className="fixed inset-0 z-50 bg-jetblack/70 backdrop-blur-xs flex items-center justify-center p-4">
+              <div className="bg-white rounded-3xl p-6 sm:p-8 max-w-md w-full border border-gray-200 shadow-2xl space-y-6 relative animate-in fade-in zoom-in-95 duration-200 text-center">
+                <button
+                  onClick={() => setSelectedBarcodeLine(null)}
+                  className="absolute top-4 right-4 text-gray-400 hover:text-jetblack p-1 rounded-full hover:bg-gray-100"
+                >
+                  <X className="h-5 w-5" />
+                </button>
+
+                <div className="space-y-1">
+                  <span className="text-[10px] font-extrabold uppercase tracking-widest text-caramel">
+                    Product Barcode Verification
+                  </span>
+                  <h3 className="text-xl font-black text-jetblack">{selectedBarcodeLine.product.itemName}</h3>
+                  <p className="text-xs text-gray-500">
+                    Brand: <span className="font-bold text-jetblack">{selectedBarcodeLine.product.brand || 'Standard'}</span> • Qty Required: <span className="font-bold text-papaya text-sm">{selectedBarcodeLine.quantityOrdered}</span>
+                  </p>
+                </div>
+
+                {/* Rendered 1D Barcode */}
+                <div className="py-2 flex justify-center">
+                  <BarcodeSvg value={selectedBarcodeLine.product.sku} width={300} height={100} />
+                </div>
+
+                <p className="text-xs text-gray-500 leading-relaxed max-w-xs mx-auto">
+                  Scan this barcode using your connected phone camera or handheld scanner to verify and pack.
+                </p>
+
+                <div className="flex gap-3 pt-2">
+                  <button
+                    onClick={async () => {
+                      await handleManualToggle(selectedBarcodeLine.id, selectedBarcodeLine.isPacked);
+                      setSelectedBarcodeLine(null);
+                    }}
+                    className={`flex-1 py-3 text-xs font-black rounded-xl transition-all shadow-sm ${
+                      selectedBarcodeLine.isPacked
+                        ? 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+                        : 'bg-papaya text-jetblack hover:bg-caramel hover:text-white'
+                    }`}
+                  >
+                    {selectedBarcodeLine.isPacked ? 'Mark as Pending' : 'Confirm Pack (Manual Override)'}
+                  </button>
+                  <button
+                    onClick={() => setSelectedBarcodeLine(null)}
+                    className="px-4 py-3 border border-gray-200 text-xs font-bold text-gray-600 hover:bg-gray-50 rounded-xl transition-all"
+                  >
+                    Done
+                  </button>
+                </div>
               </div>
             </div>
           )}
