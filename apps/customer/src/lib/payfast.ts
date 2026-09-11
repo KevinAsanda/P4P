@@ -37,8 +37,6 @@ export function generatePayfastSignature(data: Record<string, string>, passphras
     finalString += `&passphrase=${encodedPass}`;
   }
 
-  console.log('[DEBUG] PayFast Signature raw string:', finalString);
   const hash = crypto.createHash('md5').update(finalString).digest('hex');
-  console.log('[DEBUG] PayFast Generated Signature:', hash);
   return hash;
 }

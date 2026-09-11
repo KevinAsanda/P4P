@@ -5,11 +5,13 @@ import { Decimal } from '@prisma/client';
 async function runTest() {
   console.log('🧪 Starting PayFast ITN loop test...');
 
-  // 1. Set environment variables if not set (for signature matching)
-  process.env.PAYFAST_MERCHANT_ID = '10050325';
-  process.env.PAYFAST_MERCHANT_KEY = '1iffjh9cf54v4';
-  process.env.PAYFAST_PASSPHRASE = 'kevinasandamanzini';
-  process.env.PAYFAST_MODE = 'sandbox';
+  // 1. Require credentials from environment — never hardcode them
+  if (!process.env.PAYFAST_MERCHANT_ID || !process.env.PAYFAST_MERCHANT_KEY || !process.env.PAYFAST_PASSPHRASE) {
+    console.error('Error: PAYFAST_MERCHANT_ID, PAYFAST_MERCHANT_KEY, and PAYFAST_PASSPHRASE must be set in your .env file.');
+    console.log('Copy .env.customer.example to apps/customer/.env.local and fill in your PayFast sandbox credentials.');
+    process.exit(1);
+  }
+  process.env.PAYFAST_MODE = process.env.PAYFAST_MODE || 'sandbox';
 
   // 2. Locate a test product from seed
   const testProduct = await prisma.product.findUnique({

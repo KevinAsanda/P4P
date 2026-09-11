@@ -11,10 +11,12 @@ async function main() {
     process.exit(1);
   }
 
-  // Set default sandbox credentials if environment is empty
-  process.env.PAYFAST_MERCHANT_ID = process.env.PAYFAST_MERCHANT_ID || '10050325';
-  process.env.PAYFAST_MERCHANT_KEY = process.env.PAYFAST_MERCHANT_KEY || '1iffjh9cf54v4';
-  process.env.PAYFAST_PASSPHRASE = process.env.PAYFAST_PASSPHRASE || 'kevinasandamanzini';
+  // Require sandbox credentials from environment — never hardcode them
+  if (!process.env.PAYFAST_MERCHANT_ID || !process.env.PAYFAST_MERCHANT_KEY || !process.env.PAYFAST_PASSPHRASE) {
+    console.error('Error: PAYFAST_MERCHANT_ID, PAYFAST_MERCHANT_KEY, and PAYFAST_PASSPHRASE must be set in your .env file.');
+    console.log('Copy .env.customer.example to apps/customer/.env.local and fill in your PayFast sandbox credentials.');
+    process.exit(1);
+  }
 
   console.log(`\n🔍 Fetching order details for order: ${orderId}...`);
   const order = await prisma.salesOrder.findUnique({

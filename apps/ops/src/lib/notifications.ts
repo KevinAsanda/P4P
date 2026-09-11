@@ -136,26 +136,8 @@ export async function sendEmail({
     });
 
     if (response.error) {
-      console.error('[Resend Error] Primary send failed:', response.error);
-
-      // Sandbox Fallback: If recipient is unverified, forward to the developer's address
-      const fallbackEmail = process.env.RESEND_FROM_ADDRESS || 'kevinasanda99@gamil.com';
-      console.log(`[Email Helper Fallback] Forwarding sandbox email to developer: ${fallbackEmail}`);
-      const fallbackResponse = await resend.emails.send({
-        from: 'Prepped 4 Prep <onboarding@resend.dev>',
-        to: [fallbackEmail],
-        subject: `[SANDBOX FORWARD: ${to}] ${subject}`,
-        html: `<p style="color: #e53e3e; font-size: 12px; margin-bottom: 20px;">
-                <strong>Developer Notice:</strong> This email was forwarded to you because the recipient address <em>${to}</em> is not verified in your Resend sandbox account.
-              </p><hr/>${html}`,
-      });
-
-      if (fallbackResponse.error) {
-        console.error('[Resend Fallback Error] Fallback send failed:', fallbackResponse.error);
-        return { success: false, error: fallbackResponse.error };
-      }
-
-      return { success: true, fallback: true, data: fallbackResponse.data };
+      console.error('[Resend Error] Email send failed:', response.error);
+      return { success: false, error: response.error };
     }
 
     console.log('[Resend Success] Email sent:', response.data);
