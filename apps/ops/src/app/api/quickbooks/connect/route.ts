@@ -1,6 +1,12 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getActiveRole, getAuthenticatedUserId } from '@/lib/auth-utils';
 
 export async function GET(request: NextRequest) {
+  const [role, userId] = await Promise.all([getActiveRole(), getAuthenticatedUserId()]);
+  if (userId === 'unauthenticated' || (role !== 'admin' && role !== 'finance')) {
+    return new NextResponse('Unauthorized: Admin or Finance clearance required.', { status: 403 });
+  }
+
   const clientId = process.env.QUICKBOOKS_CLIENT_ID;
   const redirectUri = process.env.QUICKBOOKS_REDIRECT_URI;
 

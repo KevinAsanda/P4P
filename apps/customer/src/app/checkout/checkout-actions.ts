@@ -16,7 +16,7 @@ export async function createCheckoutOrder(
   const xForwardedFor = headersList.get('x-forwarded-for');
   const ip = xForwardedFor ? xForwardedFor.split(',')[0].trim() : '127.0.0.1';
 
-  if (!isAllowedRateLimit(`checkout:${ip}`, 5, 10 * 60 * 1000)) {
+  if (!(await isAllowedRateLimit(`checkout:${ip}`, 5, 10 * 60 * 1000))) {
     throw new Error('Too many checkout attempts. Please try again in 10 minutes.');
   }
 
@@ -62,11 +62,60 @@ export async function createCheckoutOrder(
     throw new Error('Student Last Name is required.');
   }
 
-  // 5. Encrypt Sensitive Customer Columns
+  // 5. Validate Cart Items & Calculate Authoritative Server-Side Pricing
+  const rawLines = [
+    ...(Array.isArray(cartData?.items) ? cartData.items : []),
+    ...(Array.isArray(cartData?.services) ? cartData.services : []),
+  ];
+
+  if (rawLines.length === 0) {
+    throw new Error('Your cart is empty. Please add at least one item before checking out.');
+  }
+
+  const productIds = Array.from(new Set(rawLines.map((item: any) => String(item.productId))));
+  const dbProducts = await prisma.product.findMany({
+    where: { id: { in: productIds } },
+  });
+  const productMap = new Map(dbProducts.map((p) => [p.id, p]));
+
+  let computedGrandTotal = 0;
+  const validatedLines: Array<{
+    productId: string;
+    quantityOrdered: number;
+    unitPriceAtSale: number;
+    lineSubTotal: number;
+  }> = [];
+
+  for (const item of rawLines) {
+    const qty = Math.floor(Number(item.quantity));
+    if (!qty || qty <= 0) continue;
+
+    const dbProduct = productMap.get(String(item.productId));
+    if (!dbProduct) {
+      throw new Error(`Invalid or unavailable product in cart (${item.name || item.productId}).`);
+    }
+
+    const unitPrice = dbProduct.unitPrice.toNumber();
+    const lineSubTotal = Number((unitPrice * qty).toFixed(2));
+    computedGrandTotal = Number((computedGrandTotal + lineSubTotal).toFixed(2));
+
+    validatedLines.push({
+      productId: dbProduct.id,
+      quantityOrdered: qty,
+      unitPriceAtSale: unitPrice,
+      lineSubTotal,
+    });
+  }
+
+  if (validatedLines.length === 0 || computedGrandTotal <= 0) {
+    throw new Error('Order total must be greater than R0.00.');
+  }
+
+  // 6. Encrypt Sensitive Customer Columns
   const encryptedPhone = encryptValue(customerData.phone.trim());
   const encryptedAddress = deliveryMethod === 'delivery' ? encryptValue(customerData.deliveryAddress.trim()) : null;
 
-  // 6. Upsert Customer details
+  // 7. Upsert Customer details
   const customer = await prisma.customer.upsert({
     where: { email: user.email! },
     update: {
@@ -88,7 +137,7 @@ export async function createCheckoutOrder(
     },
   });
 
-  // 2. Lookup school id by name
+  // 8. Lookup school id by name
   let school = await prisma.school.findFirst({
     where: { name: cartData.schoolName },
   });
@@ -98,7 +147,7 @@ export async function createCheckoutOrder(
     // register it on the fly to avoid crashing checkout.
     school = await prisma.school.create({
       data: {
-        name: cartData.schoolName,
+        name: cartData.schoolName || 'Custom School List',
         region: 'Durban Central',
         contactPerson: 'Ad-hoc Customer Import',
         isActive: true,
@@ -106,14 +155,14 @@ export async function createCheckoutOrder(
     });
   }
 
-  // 3. Upsert Student — reuse existing record for the same child/grade/year
+  // 9. Upsert Student — reuse existing record for the same child/grade/year
   let student = await prisma.student.findFirst({
     where: {
       customerId: customer.id,
-      firstName: studentData.firstName,
-      lastName: studentData.lastName,
-      gradeLevel: cartData.gradeLevel,
-      academicYear: Number(cartData.academicYear),
+      firstName: studentData.firstName.trim(),
+      lastName: studentData.lastName.trim(),
+      gradeLevel: String(cartData.gradeLevel || 'Grade 1'),
+      academicYear: Number(cartData.academicYear) || new Date().getFullYear(),
     },
   });
 
@@ -122,42 +171,41 @@ export async function createCheckoutOrder(
       data: {
         customerId: customer.id,
         schoolId: school.id,
-        firstName: studentData.firstName,
-        lastName: studentData.lastName,
-        gradeLevel: cartData.gradeLevel,
-        academicYear: Number(cartData.academicYear),
+        firstName: studentData.firstName.trim(),
+        lastName: studentData.lastName.trim(),
+        gradeLevel: String(cartData.gradeLevel || 'Grade 1'),
+        academicYear: Number(cartData.academicYear) || new Date().getFullYear(),
       },
     });
   }
 
-  // 4. Create Sales Order
+  // 10. Create Sales Order with server-verified total
   const order = await prisma.salesOrder.create({
     data: {
       customerId: customer.id,
       studentId: student.id,
-      totalAmount: cartData.grandTotal,
+      totalAmount: computedGrandTotal,
       paymentStatus: 'pending',
       fulfillmentStatus: 'pending',
       quickbooksSyncStatus: 'pending',
     },
   });
 
-  // 5. Create Order Lines
-  const allLines = [...cartData.items, ...cartData.services];
-  for (const item of allLines) {
+  // 11. Create Order Lines
+  for (const line of validatedLines) {
     await prisma.orderLine.create({
       data: {
         orderId: order.id,
-        productId: item.productId,
-        quantityOrdered: item.quantity,
-        unitPriceAtSale: item.price,
-        lineSubTotal: item.subtotal,
+        productId: line.productId,
+        quantityOrdered: line.quantityOrdered,
+        unitPriceAtSale: line.unitPriceAtSale,
+        lineSubTotal: line.lineSubTotal,
         isPacked: false,
       },
     });
   }
 
-  // 6. Create Delivery record
+  // 12. Create Delivery record
   await prisma.delivery.create({
     data: {
       orderId: order.id,

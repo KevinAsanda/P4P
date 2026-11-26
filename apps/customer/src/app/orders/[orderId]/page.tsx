@@ -86,12 +86,31 @@ export default async function OrderPage({ params }: PageProps) {
           <div className="mx-auto flex h-12 w-12 items-center justify-center rounded-full bg-green-50 text-green-500">
             ✓
           </div>
-          <h2 className="text-xl font-extrabold text-jetblack">Order Placed Successfully!</h2>
+          <h2 className="text-xl font-extrabold text-jetblack">
+            {order.paymentStatus === 'paid' ? 'Order Confirmed & Paid!' : 'Order Placed Successfully!'}
+          </h2>
           <p className="text-sm text-gray-500 max-w-md mx-auto">
-            Thank you! Your child's stationery pack order is registered. We are preparing the school templates and custom tags.
+            Thank you! Your child&apos;s stationery pack order is registered. We are preparing the school templates and custom tags.
           </p>
-          <div className="mt-4 inline-flex items-center gap-2 rounded-full bg-papaya/10 px-3 py-1 text-xs font-bold text-caramel">
-            Payment Status: Pending (Phase 3 PayFast)
+          <div className="mt-4 flex flex-wrap items-center justify-center gap-3">
+            <span
+              className={`inline-flex items-center gap-2 rounded-full px-3.5 py-1 text-xs font-bold capitalize ${
+                order.paymentStatus === 'paid'
+                  ? 'bg-green-50 text-green-700 border border-green-200'
+                  : 'bg-papaya/15 text-caramel border border-papaya/30'
+              }`}
+            >
+              Payment Status: {order.paymentStatus}
+            </span>
+            {order.paymentStatus === 'pending' && (
+              <Link
+                href={`/checkout/payfast?orderId=${order.id}`}
+                className="inline-flex items-center gap-1.5 rounded-full bg-papaya px-4 py-1 text-xs font-bold text-jetblack hover:bg-caramel transition-colors"
+              >
+                <span>Complete Payment via PayFast</span>
+                <ArrowRight className="h-3 w-3" />
+              </Link>
+            )}
           </div>
         </div>
 

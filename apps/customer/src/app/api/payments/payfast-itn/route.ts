@@ -73,6 +73,15 @@ export async function POST(request: NextRequest) {
           throw new Error(`Order ${orderId} not found in database.`);
         }
 
+        // Verify paid amount matches order total
+        const receivedGross = parseFloat(data.amount_gross || '0');
+        const expectedTotal = order.totalAmount.toNumber();
+        if (Math.abs(receivedGross - expectedTotal) > 0.01) {
+          throw new Error(
+            `PayFast ITN amount mismatch for order ${orderId}: expected ${expectedTotal.toFixed(2)}, received ${receivedGross.toFixed(2)}`
+          );
+        }
+
         if (order.paymentStatus === 'paid') {
           // Already processed
           console.log(`PayFast ITN: Order ${orderId} was already marked as paid.`);

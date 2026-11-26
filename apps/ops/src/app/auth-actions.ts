@@ -5,6 +5,7 @@ import { cookies, headers } from 'next/headers';
 import { createClient } from '@/lib/supabase/server';
 import { createAdminClient } from '@/lib/supabase/admin';
 import { getRealRole } from '@/lib/auth-utils';
+import { writeAuditLog } from '@/lib/audit';
 
 // ── Sign In ────────────────────────────────────────────────────────────────────
 
@@ -133,6 +134,8 @@ export async function inviteStaffMember(state: any, formData: FormData) {
     }
   }
 
+  await writeAuditLog('INVITE_STAFF_MEMBER', data.user?.id || email, `Email: ${email}, Assigned Role: ${staffRole}`);
+
   return { success: true, email };
 }
 
@@ -166,6 +169,8 @@ export async function updateStaffRole(
   if (error) {
     return { error: error.message };
   }
+
+  await writeAuditLog('UPDATE_STAFF_ROLE', userId, `New Role: ${newRole}`);
 
   return { success: true };
 }

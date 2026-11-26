@@ -1,8 +1,16 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { prisma } from '@p4p/db';
+import { getActiveRole, getAuthenticatedUserId } from '@/lib/auth-utils';
+import { writeAuditLog } from '@/lib/audit';
+import { sendOrderPackedEmail } from '@/lib/notifications';
 
 export async function POST(request: NextRequest) {
   try {
+    const [role, userId] = await Promise.all([getActiveRole(), getAuthenticatedUserId()]);
+    if (userId === 'unauthenticated' || (role !== 'admin' && role !== 'warehouse')) {
+      return NextResponse.json({ error: 'Unauthorized: Warehouse or Admin clearance required' }, { status: 403 });
+    }
+
     const body = await request.json();
     const { orderId, sku } = body;
 
@@ -58,6 +66,8 @@ export async function POST(request: NextRequest) {
       data: { isPacked: true },
     });
 
+    await writeAuditLog('SCAN_PACK_ITEM', matchingLine.id, `SKU: ${cleanSku}, OrderId: ${orderId}`);
+
     // 4. Check if order status needs to transition to 'packing' or 'packed'
     const updatedLines = await prisma.orderLine.findMany({
       where: { orderId },
@@ -69,8 +79,17 @@ export async function POST(request: NextRequest) {
     if (order.fulfillmentStatus !== newStatus) {
       await prisma.salesOrder.update({
         where: { id: orderId },
-        data: { fulfillmentStatus: newStatus },
+        data: {
+          fulfillmentStatus: newStatus,
+          packedByStaffId: userId,
+        },
       });
+
+      if (allPacked) {
+        sendOrderPackedEmail(orderId).catch((err) =>
+          console.error('[Packing Scan API] Error sending packed email:', err)
+        );
+      }
     }
 
     return NextResponse.json({
@@ -88,6 +107,11 @@ export async function POST(request: NextRequest) {
 
 export async function GET(request: NextRequest) {
   try {
+    const [role, userId] = await Promise.all([getActiveRole(), getAuthenticatedUserId()]);
+    if (userId === 'unauthenticated' || (role !== 'admin' && role !== 'warehouse')) {
+      return NextResponse.json({ error: 'Unauthorized: Warehouse or Admin clearance required' }, { status: 403 });
+    }
+
     const { searchParams } = new URL(request.url);
     const orderId = searchParams.get('orderId');
 

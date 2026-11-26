@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getActiveRole, getAuthenticatedUserId } from '@/lib/auth-utils';
 
 export async function POST(request: NextRequest) {
   try {
+    const [role, userId] = await Promise.all([getActiveRole(), getAuthenticatedUserId()]);
+    if (userId === 'unauthenticated' || role !== 'admin') {
+      return NextResponse.json({ error: 'Unauthorized: Admin clearance required' }, { status: 403 });
+    }
+
     const body = await request.json();
     const { textContent, fileBase64, fileType } = body;
 

@@ -5,6 +5,7 @@ import DashboardLayout from '@/components/DashboardLayout';
 import Link from 'next/link';
 import QbSyncControl from '@/components/QbSyncControl';
 import { decryptValue } from '@p4p/shared';
+import { isQbConnected, syncOrderToQuickBooks } from '@/lib/quickbooks';
 
 interface PageProps {
   searchParams: Promise<{
@@ -47,12 +48,25 @@ export default async function OrdersPage({ searchParams }: PageProps) {
     },
   });
 
+  // 3. Auto-sync any paid orders that haven't synced to QuickBooks yet (Ops-only integration)
+  if ((activeRole === 'admin' || activeRole === 'finance') && (await isQbConnected())) {
+    const unsyncedPaidOrders = fetchedOrders.filter(
+      (o: any) => o.paymentStatus === 'paid' && o.quickbooksSyncStatus === 'pending' && !o.quickbooksInvoiceId
+    );
+    for (const unsynced of unsyncedPaidOrders) {
+      syncOrderToQuickBooks(unsynced.id).catch((err) =>
+        console.error('[Ops AutoSync] Background QB sync failed for order:', unsynced.id, err)
+      );
+    }
+  }
+
   const orders = fetchedOrders.map((ord: any) => ({
     ...ord,
+    totalAmount: permissions.canSeePrices ? ord.totalAmount : 0,
     customer: {
       ...ord.customer,
-      phone: decryptValue(ord.customer.phone),
-      deliveryAddress: decryptValue(ord.customer.deliveryAddress),
+      phone: permissions.canSeeAddresses ? decryptValue(ord.customer.phone) : null,
+      deliveryAddress: permissions.canSeeAddresses ? decryptValue(ord.customer.deliveryAddress) : null,
     },
   }));
 

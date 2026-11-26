@@ -1,5 +1,6 @@
 import { prisma } from '@p4p/db';
 import { getAuthContext } from '@/lib/auth-utils';
+import { PERMISSIONS } from '@/lib/rbac';
 import DashboardLayout from '@/components/DashboardLayout';
 import { ShieldAlert } from 'lucide-react';
 import DeliveryClient from './DeliveryClient';
@@ -9,6 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function DeliveryPage() {
   const { activeRole, isActualAdmin, userEmail } = await getAuthContext();
+  const permissions = PERMISSIONS[activeRole];
 
   if (activeRole !== 'admin' && activeRole !== 'warehouse') {
     return (
@@ -47,6 +49,7 @@ export default async function DeliveryPage() {
 
   const orders = fetchedOrders.map((ord: any) => ({
     ...ord,
+    totalAmount: permissions.canSeePrices ? ord.totalAmount : 0,
     customer: {
       ...ord.customer,
       phone: decryptValue(ord.customer.phone),
@@ -55,7 +58,7 @@ export default async function DeliveryPage() {
   }));
 
   return (
-    <DashboardLayout activeRole={activeRole}>
+    <DashboardLayout activeRole={activeRole} isActualAdmin={isActualAdmin} userEmail={userEmail}>
       <DeliveryClient initialOrders={JSON.parse(JSON.stringify(orders))} activeRole={activeRole} />
     </DashboardLayout>
   );

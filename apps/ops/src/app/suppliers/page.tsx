@@ -41,7 +41,7 @@ export default async function SuppliersPage() {
   const lowStockProducts = products.filter((p) => p.qtyOnHand <= p.reorderThreshold);
 
   return (
-    <DashboardLayout activeRole={activeRole}>
+    <DashboardLayout activeRole={activeRole} isActualAdmin={isActualAdmin} userEmail={userEmail}>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-black tracking-tight text-gray-900">Supplier Directory</h1>

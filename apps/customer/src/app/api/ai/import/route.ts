@@ -254,7 +254,7 @@ export async function POST(request: NextRequest) {
 
         // Use valid gemini-1.5-flash model on v1beta endpoint with JSON output mode
         const response = await fetch(
-          `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${geminiKey}`,
+          `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${geminiKey}`,
           {
             method: "POST",
             headers: {
@@ -298,15 +298,15 @@ export async function POST(request: NextRequest) {
       }
     }
 
-    // ---------------- REAL CLAUDE VISION API CALL ----------------
+    // ---------------- REAL CLAUDE VISION / DOCUMENT API CALL ----------------
     console.log("[AI Import Scanner] Calling Anthropic API...");
 
     let userContent: any[] = [];
     if (fileBase64 && fileType) {
-      // vision block
-      const cleanBase64 = fileBase64.replace(/^data:image\/\w+;base64,/, "");
+      const cleanBase64 = fileBase64.replace(/^data:[^;]+;base64,/, "");
+      const isPdf = fileType === "application/pdf";
       userContent.push({
-        type: "image",
+        type: isPdf ? "document" : "image",
         source: {
           type: "base64",
           media_type: fileType,

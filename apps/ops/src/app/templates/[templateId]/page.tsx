@@ -57,7 +57,7 @@ export default async function TemplateEditPage({ params }: PageProps) {
   });
 
   return (
-    <DashboardLayout activeRole={activeRole}>
+    <DashboardLayout activeRole={activeRole} isActualAdmin={isActualAdmin} userEmail={userEmail}>
       <TemplateEditorClient template={template as any} products={products as any} />
     </DashboardLayout>
   );

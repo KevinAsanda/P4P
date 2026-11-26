@@ -15,6 +15,11 @@ ALTER TABLE "OrderLine" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Delivery" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "Supplier" ENABLE ROW LEVEL SECURITY;
 ALTER TABLE "AuditLog" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "QuickBooksToken" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "Product" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "School" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "SchoolTemplate" ENABLE ROW LEVEL SECURITY;
+ALTER TABLE "TemplateLine" ENABLE ROW LEVEL SECURITY;
 
 -- FORCE RLS for all roles (including owner if needed, but usually postgres/service_role bypasses RLS by default in Supabase)
 ALTER TABLE "Customer" FORCE ROW LEVEL SECURITY;
@@ -24,6 +29,11 @@ ALTER TABLE "OrderLine" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Delivery" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "Supplier" FORCE ROW LEVEL SECURITY;
 ALTER TABLE "AuditLog" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "QuickBooksToken" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "Product" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "School" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "SchoolTemplate" FORCE ROW LEVEL SECURITY;
+ALTER TABLE "TemplateLine" FORCE ROW LEVEL SECURITY;
 
 
 -- =========================================================================
@@ -154,6 +164,69 @@ CREATE POLICY block_customers_audit_log ON "AuditLog"
 
 -- Staff/Admin can write/view audit logs
 CREATE POLICY staff_all_audit_log ON "AuditLog"
+  FOR ALL
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
+
+
+-- =========================================================================
+-- 9. QuickBooksToken (Staff-Only) Table Policies
+-- =========================================================================
+CREATE POLICY block_customers_qb_token ON "QuickBooksToken"
+  FOR ALL
+  TO authenticated
+  USING (false);
+
+CREATE POLICY staff_all_qb_token ON "QuickBooksToken"
+  FOR ALL
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
+
+
+-- =========================================================================
+-- 10. Catalog & Templates (Read-Only for Customers, Write for Staff)
+-- =========================================================================
+CREATE POLICY public_read_product ON "Product"
+  FOR SELECT
+  TO anon, authenticated
+  USING (true);
+
+CREATE POLICY staff_all_product ON "Product"
+  FOR ALL
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
+
+CREATE POLICY public_read_school ON "School"
+  FOR SELECT
+  TO anon, authenticated
+  USING (true);
+
+CREATE POLICY staff_all_school ON "School"
+  FOR ALL
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
+
+CREATE POLICY public_read_school_template ON "SchoolTemplate"
+  FOR SELECT
+  TO anon, authenticated
+  USING (true);
+
+CREATE POLICY staff_all_school_template ON "SchoolTemplate"
+  FOR ALL
+  TO service_role
+  USING (true)
+  WITH CHECK (true);
+
+CREATE POLICY public_read_template_line ON "TemplateLine"
+  FOR SELECT
+  TO anon, authenticated
+  USING (true);
+
+CREATE POLICY staff_all_template_line ON "TemplateLine"
   FOR ALL
   TO service_role
   USING (true)

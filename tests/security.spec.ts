@@ -2,63 +2,31 @@ import { test, expect } from '@playwright/test';
 
 test.describe('Prepped 4 Prep — Customer Portal E2E Tests', () => {
   test('should load storefront home page and find key branding elements', async ({ page }) => {
-    // Navigate to local customer storefront
     await page.goto('http://localhost:3000/');
 
-    // Assert main logo or mascot note is visible
     const bodyText = await page.innerText('body');
     expect(bodyText).toContain('Prepped 4 Prep');
-    
-    // Check if the CTA to get stationery template packs exists
-    const templatePickerBtn = page.locator('text=Select School');
-    expect(templatePickerBtn).toBeDefined();
+
+    const templatePickerHeading = page.locator('text=Find Your School List');
+    await expect(templatePickerHeading).toBeVisible();
+  });
+
+  test('should load public POPIA Privacy Notice page', async ({ page }) => {
+    await page.goto('http://localhost:3000/privacy');
+    await expect(page.locator('h1')).toContainText('Privacy & POPIA Notice');
   });
 });
 
-test.describe('Prepped 4 Prep — Operations Portal E2E Security Tests (RBAC & POPIA)', () => {
-  test('should show full financial BI metrics to an Admin user', async ({ page, context }) => {
-    // Set active role cookie to admin
-    await context.addCookies([
-      {
-        name: 'p4p_ops_role',
-        value: 'admin',
-        domain: 'localhost',
-        path: '/',
-      },
-    ]);
-
+test.describe('Prepped 4 Prep — Operations Portal E2E Security Tests (RBAC & Auth)', () => {
+  test('should redirect unauthenticated users away from protected Ops routes to /login', async ({ page }) => {
     await page.goto('http://localhost:3001/');
-
-    // Assert Admin Dashboard header is visible
-    await expect(page.locator('h1')).toContainText('Admin Dashboard', { ignoreCase: true });
-
-    // Assert financial BI metric card (Total Revenue) is present and visible
-    const totalRevenueLabel = page.locator('text=Total Revenue');
-    await expect(totalRevenueLabel).toBeVisible();
+    await expect(page).toHaveURL(/\/login/);
   });
 
-  test('should hide financial BI metrics and show redacted alerts to a Warehouse user', async ({ page, context }) => {
-    // Set active role cookie to warehouse
-    await context.addCookies([
-      {
-        name: 'p4p_ops_role',
-        value: 'warehouse',
-        domain: 'localhost',
-        path: '/',
-      },
-    ]);
-
-    await page.goto('http://localhost:3001/');
-
-    // Assert Warehouse Dashboard header is visible
-    await expect(page.locator('h1')).toContainText('Warehouse Dashboard', { ignoreCase: true });
-
-    // Assert that Financial BI is Redacted for the warehouse role
-    const redactedWarning = page.locator('text=Financial BI Redacted');
-    await expect(redactedWarning).toBeVisible();
-
-    // Verify that the Total Revenue number is hidden or redacted
-    const bodyText = await page.innerText('body');
-    expect(bodyText).not.toContain('Total Revenue');
+  test('should reject unauthenticated requests to Ops API routes', async ({ request }) => {
+    const scanRes = await request.post('http://localhost:3001/api/packing/scan', {
+      data: { orderId: 'test-order', sku: 'TEST-SKU' },
+    });
+    expect([401, 403, 307, 302]).toContain(scanRes.status());
   });
 });

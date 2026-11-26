@@ -287,7 +287,11 @@ export default function CheckoutForm({ prefilledCustomer }: CheckoutFormProps) {
                 We collect your name, email, phone, and delivery address along with your child's name and grade. This data is processed securely and exclusively to generate customized stationery name-tags, wrap school books, and deliver your order.
               </p>
               <p>
-                We do not store your credit card information directly and never share children's details with external parties.
+                We do not store your credit card information directly and never share children&apos;s details with external parties. Read our full{' '}
+                <a href="/privacy" target="_blank" rel="noopener noreferrer" className="font-bold text-caramel underline hover:text-jetblack">
+                  POPIA Privacy Notice
+                </a>
+                .
               </p>
             </div>
           </div>
@@ -300,7 +304,7 @@ export default function CheckoutForm({ prefilledCustomer }: CheckoutFormProps) {
               className="mt-1 h-5 w-5 rounded border-gray-300 text-papaya focus:ring-papaya"
             />
             <span className="text-xs text-gray-500 font-semibold leading-relaxed">
-              I consent to the collection, processing, and timestamped registration of my parent details and student details for stationery preparation, labeling, and courier delivery.
+              I consent to the collection, processing, and timestamped registration of my parent details and student details for stationery preparation, labeling, and courier delivery in accordance with the POPIA Privacy Notice.
             </span>
           </label>
         </div>

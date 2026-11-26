@@ -1,5 +1,5 @@
 import { prisma } from '@p4p/db';
-import { decryptValue } from '@p4p/shared';
+import { decryptValue, encryptValue } from '@p4p/shared';
 
 export interface QbTokens {
   accessToken: string;
@@ -8,7 +8,7 @@ export interface QbTokens {
   realmId: string;
 }
 
-// Helper to retrieve tokens from PostgreSQL DB
+// Helper to retrieve tokens from PostgreSQL DB (decrypting tokens stored at rest)
 export async function getQbTokens(): Promise<QbTokens | null> {
   try {
     const record = await prisma.quickBooksToken.findUnique({
@@ -16,8 +16,8 @@ export async function getQbTokens(): Promise<QbTokens | null> {
     });
     if (!record) return null;
     return {
-      accessToken: record.accessToken,
-      refreshToken: record.refreshToken,
+      accessToken: decryptValue(record.accessToken) || '',
+      refreshToken: decryptValue(record.refreshToken) || '',
       expiresAt: Number(record.expiresAt),
       realmId: record.realmId,
     };
@@ -27,26 +27,29 @@ export async function getQbTokens(): Promise<QbTokens | null> {
   }
 }
 
-// Helper to save tokens to PostgreSQL DB
+// Helper to save tokens to PostgreSQL DB (encrypting tokens at rest)
 export async function saveQbTokens(tokens: QbTokens) {
   try {
+    const encryptedAccess = encryptValue(tokens.accessToken) || tokens.accessToken;
+    const encryptedRefresh = encryptValue(tokens.refreshToken) || tokens.refreshToken;
+
     await prisma.quickBooksToken.upsert({
       where: { id: 'active' },
       update: {
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
+        accessToken: encryptedAccess,
+        refreshToken: encryptedRefresh,
         expiresAt: BigInt(tokens.expiresAt),
         realmId: tokens.realmId,
       },
       create: {
         id: 'active',
-        accessToken: tokens.accessToken,
-        refreshToken: tokens.refreshToken,
+        accessToken: encryptedAccess,
+        refreshToken: encryptedRefresh,
         expiresAt: BigInt(tokens.expiresAt),
         realmId: tokens.realmId,
       },
     });
-    console.log('[QuickBooks] Tokens successfully saved to database.');
+    console.log('[QuickBooks] Tokens successfully encrypted and saved to database.');
   } catch (error) {
     console.error('[QuickBooks] Error saving tokens to database:', error);
   }

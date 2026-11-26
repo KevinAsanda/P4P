@@ -208,11 +208,11 @@ async function main() {
   await prisma.customer.deleteMany();
 
   const mockCustomers = [
-    { id: 'cust-1', firstName: 'Caron', lastName: 'Giles', email: 'caron@prepped4prep.co.za', phone: '0821112222', deliveryAddress: '12 Ridge Road, Berea, Durban' },
-    { id: 'cust-2', firstName: 'Jess', lastName: 'Williams', email: 'jess@gmail.com', phone: '0834445555', deliveryAddress: '44 Chelsea Drive, Durban North' },
-    { id: 'cust-3', firstName: 'Sarah', lastName: 'Jenkins', email: 'sarah.j@outlook.com', phone: '0718889999', deliveryAddress: '88 Link Road, Westville' },
-    { id: 'cust-4', firstName: 'Michael', lastName: 'Nair', email: 'nair.m@ymail.com', phone: '0842223333', deliveryAddress: '15 Bellevue Road, Glenwood' },
-    { id: 'cust-5', firstName: 'Thabo', lastName: 'Mkhize', email: 'thabo@mkhizemail.co.za', phone: '0726667777', deliveryAddress: '31 Florida Road, Morningside' },
+    { id: 'cust-1', firstName: 'Claire', lastName: 'Botha', email: 'claire.botha@example.com', phone: '0821112222', deliveryAddress: '12 Ridge Road, Berea, Durban' },
+    { id: 'cust-2', firstName: 'Nadia', lastName: 'Patel', email: 'nadia.patel@example.com', phone: '0834445555', deliveryAddress: '44 Chelsea Drive, Durban North' },
+    { id: 'cust-3', firstName: 'Sarah', lastName: 'Jenkins', email: 'sarah.jenkins@example.com', phone: '0718889999', deliveryAddress: '88 Link Road, Westville' },
+    { id: 'cust-4', firstName: 'Michael', lastName: 'Nair', email: 'michael.nair@example.com', phone: '0842223333', deliveryAddress: '15 Bellevue Road, Glenwood' },
+    { id: 'cust-5', firstName: 'Thabo', lastName: 'Mkhize', email: 'thabo.mkhize@example.com', phone: '0726667777', deliveryAddress: '31 Florida Road, Morningside' },
   ];
 
   for (const c of mockCustomers) {
@@ -231,8 +231,8 @@ async function main() {
 
   // Create Students under customers
   const studentsData = [
-    { id: 'stud-1', customerId: 'cust-1', schoolId: 'sch-dps', firstName: 'Luke', lastName: 'Giles', gradeLevel: 'Grade 1', academicYear: 2026 },
-    { id: 'stud-2', customerId: 'cust-2', schoolId: 'sch-cps', firstName: 'Emma', lastName: 'Williams', gradeLevel: 'Grade 4', academicYear: 2026 },
+    { id: 'stud-1', customerId: 'cust-1', schoolId: 'sch-dps', firstName: 'Luke', lastName: 'Botha', gradeLevel: 'Grade 1', academicYear: 2026 },
+    { id: 'stud-2', customerId: 'cust-2', schoolId: 'sch-cps', firstName: 'Emma', lastName: 'Patel', gradeLevel: 'Grade 4', academicYear: 2026 },
     { id: 'stud-3', customerId: 'cust-3', schoolId: 'sch-wps', firstName: 'Daniel', lastName: 'Jenkins', gradeLevel: 'Grade 2', academicYear: 2026 },
     { id: 'stud-4', customerId: 'cust-4', schoolId: 'sch-gps', firstName: 'Aria', lastName: 'Nair', gradeLevel: 'Grade 7', academicYear: 2026 },
     { id: 'stud-5', customerId: 'cust-5', schoolId: 'sch-clifton', firstName: 'Sipho', lastName: 'Mkhize', gradeLevel: 'Grade 5', academicYear: 2026 },

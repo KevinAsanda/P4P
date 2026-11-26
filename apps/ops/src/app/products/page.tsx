@@ -40,7 +40,7 @@ export default async function ProductsPage() {
   });
 
   return (
-    <DashboardLayout activeRole={activeRole}>
+    <DashboardLayout activeRole={activeRole} isActualAdmin={isActualAdmin} userEmail={userEmail}>
       <div className="space-y-6">
         <div>
           <h1 className="text-2xl font-black tracking-tight text-gray-900">Product Catalog</h1>

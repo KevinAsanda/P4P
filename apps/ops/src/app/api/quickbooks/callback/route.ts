@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { saveQbTokens } from '@/lib/quickbooks';
+import { getActiveRole, getAuthenticatedUserId } from '@/lib/auth-utils';
+import { writeAuditLog } from '@/lib/audit';
 
 function getPublicOrigin(request: NextRequest): string {
   const forwardedHost = request.headers.get('x-forwarded-host');
@@ -19,15 +21,25 @@ function getPublicOrigin(request: NextRequest): string {
 }
 
 export async function GET(request: NextRequest) {
+  const [role, userId] = await Promise.all([getActiveRole(), getAuthenticatedUserId()]);
+  if (userId === 'unauthenticated' || (role !== 'admin' && role !== 'finance')) {
+    return new NextResponse('Unauthorized: Admin or Finance clearance required.', { status: 403 });
+  }
+
   const { searchParams } = new URL(request.url);
   const code = searchParams.get('code');
   const realmId = searchParams.get('realmId');
+  const state = searchParams.get('state');
   const error = searchParams.get('error');
 
   if (error) {
     console.warn('[QuickBooks Callback] Access request denied by user:', error);
     const origin = getPublicOrigin(request);
     return NextResponse.redirect(`${origin}/?qb_error=${error}`);
+  }
+
+  if (state !== 'p4p_ops_state_verification_token') {
+    return new NextResponse('OAuth state verification failed.', { status: 400 });
   }
 
   if (!code || !realmId) {
@@ -68,13 +80,15 @@ export async function GET(request: NextRequest) {
 
     const data = await response.json();
     
-    // Save tokens in Database
+    // Save tokens in Database (encrypted at rest)
     await saveQbTokens({
       accessToken: data.access_token,
       refreshToken: data.refresh_token,
       expiresAt: Date.now() + data.expires_in * 1000,
       realmId,
     });
+
+    await writeAuditLog('CONNECT_QUICKBOOKS', realmId, `Connected QuickBooks Realm ID: ${realmId}`);
 
     console.log('[QuickBooks Callback] Token exchange successful. Connected Realm ID:', realmId);
 

@@ -133,6 +133,9 @@ export default async function Home() {
             <a href="#track-order" className="hover:text-caramel transition-colors duration-200">
               Track Order
             </a>
+            <Link href="/orders" className="hover:text-caramel transition-colors duration-200">
+              My Orders
+            </Link>
           </nav>
 
           {/* Primary CTA */}
@@ -450,7 +453,7 @@ export default async function Home() {
 
                 <div className="lg:col-span-5 relative h-72 sm:h-80 w-full rounded-xl overflow-hidden border-2 border-white/40 shadow-xl bg-white p-2">
                   <Image
-                    src="/brand/box-note-template.png"
+                    src="/brand/box-note-template.webp"
                     alt="Personalized child welcome note template"
                     fill
                     className="object-contain"
@@ -607,7 +610,8 @@ export default async function Home() {
               <li><a href="#school-picker" className="hover:text-caramel transition-colors duration-200">Find My School</a></li>
               <li><Link href="/import" className="hover:text-caramel transition-colors duration-200">List Scanner</Link></li>
               <li><a href="#track-order" className="hover:text-caramel transition-colors duration-200">Track My Order</a></li>
-              <li><Link href="/login" className="hover:text-caramel transition-colors duration-200">Parent Account</Link></li>
+              <li><Link href="/orders" className="hover:text-caramel transition-colors duration-200">My Orders &amp; Account</Link></li>
+              <li><Link href="/privacy" className="hover:text-caramel transition-colors duration-200">POPIA Privacy Notice</Link></li>
             </ul>
           </div>
 

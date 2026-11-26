@@ -1,5 +1,6 @@
 import { prisma } from '@p4p/db';
 import { getAuthContext } from '@/lib/auth-utils';
+import { PERMISSIONS } from '@/lib/rbac';
 import DashboardLayout from '@/components/DashboardLayout';
 import { ShieldAlert } from 'lucide-react';
 import PackingQueueClient from './PackingQueueClient';
@@ -9,6 +10,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function PackingPage() {
   const { activeRole, isActualAdmin, userEmail } = await getAuthContext();
+  const permissions = PERMISSIONS[activeRole];
 
   if (activeRole !== 'admin' && activeRole !== 'warehouse') {
     return (
@@ -47,13 +49,27 @@ export default async function PackingPage() {
     },
   });
 
+  // Server-side RBAC enforcement: never serialize decrypted customer PII or pricing
+  // into the client component payload for roles that are not permitted to see them.
   const orders = fetchedOrders.map((ord: any) => ({
     ...ord,
+    totalAmount: permissions.canSeePrices ? ord.totalAmount : 0,
     customer: {
-      ...ord.customer,
-      phone: decryptValue(ord.customer.phone),
-      deliveryAddress: decryptValue(ord.customer.deliveryAddress),
+      firstName: ord.customer.firstName,
+      lastName: ord.customer.lastName,
+      email: permissions.canSeeAddresses ? ord.customer.email : '',
+      phone: permissions.canSeeAddresses ? decryptValue(ord.customer.phone) : null,
+      deliveryAddress: permissions.canSeeAddresses ? decryptValue(ord.customer.deliveryAddress) : null,
     },
+    orderLines: ord.orderLines.map((line: any) => ({
+      ...line,
+      unitPriceAtSale: permissions.canSeePrices ? line.unitPriceAtSale : 0,
+      lineSubTotal: permissions.canSeePrices ? line.lineSubTotal : 0,
+      product: {
+        ...line.product,
+        unitPrice: permissions.canSeePrices ? line.product.unitPrice : 0,
+      },
+    })),
   }));
 
   return (

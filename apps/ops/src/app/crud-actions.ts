@@ -333,6 +333,12 @@ export async function updateTemplateLine(
     },
   });
 
+  await writeAuditLog(
+    'UPDATE_TEMPLATE_LINE',
+    lineId,
+    `Template: ${line.templateId}, Qty: ${line.quantityRequired}, Optional: ${line.isOptional}`
+  );
+
   revalidatePath(`/templates/${line.templateId}`);
   revalidatePath('/templates');
 }
@@ -343,6 +349,8 @@ export async function removeTemplateLine(lineId: string) {
   const line = await prisma.templateLine.delete({
     where: { id: lineId },
   });
+
+  await writeAuditLog('REMOVE_TEMPLATE_LINE', lineId, `Template: ${line.templateId}, Product: ${line.productId}`);
 
   revalidatePath(`/templates/${line.templateId}`);
   revalidatePath('/templates');
@@ -355,6 +363,7 @@ export async function importBatchTemplateLines(
   await assertAdmin();
 
   let count = await prisma.templateLine.count({ where: { templateId } });
+  let processed = 0;
 
   for (const item of items) {
     if (!item.productId) continue;
@@ -379,7 +388,10 @@ export async function importBatchTemplateLines(
         },
       });
     }
+    processed++;
   }
+
+  await writeAuditLog('BATCH_IMPORT_TEMPLATE_LINES', templateId, `Imported/updated ${processed} template lines.`);
 
   revalidatePath(`/templates/${templateId}`);
   revalidatePath('/templates');

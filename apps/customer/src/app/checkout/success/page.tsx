@@ -2,8 +2,8 @@ import Link from 'next/link';
 import Image from 'next/image';
 import { ArrowRight, CheckCircle2 } from 'lucide-react';
 import { prisma } from '@p4p/db';
+import { createClient } from '@/lib/supabase/server';
 import { sendOrderReceivedEmail } from '@/lib/notifications';
-import { isQbConnected, syncOrderToQuickBooks } from '@/lib/quickbooks';
 
 interface PageProps {
   searchParams: Promise<{
@@ -16,55 +16,55 @@ export const dynamic = 'force-dynamic';
 export default async function CheckoutSuccessPage({ searchParams }: PageProps) {
   const { orderId } = await searchParams;
 
-  if (orderId) {
-    try {
-      await prisma.$transaction(async (tx) => {
-        const order = await tx.salesOrder.findUnique({
-          where: { id: orderId },
-          include: { orderLines: true },
-        });
+  // In live production mode, ONLY the cryptographically verified PayFast ITN webhook
+  // (/api/payments/payfast-itn) is permitted to transition an order to 'paid'.
+  // In sandbox mode, we allow an authenticated owner return_url fallback so local/sandbox
+  // testing works even when PayFast's sandbox ITN cannot reach localhost.
+  const isLive = process.env.PAYFAST_MODE === 'live';
 
-        if (order && order.paymentStatus === 'pending') {
-          // Mark order as paid
-          await tx.salesOrder.update({
+  if (orderId && !isLive) {
+    try {
+      const supabase = await createClient();
+      const { data: { user } } = await supabase.auth.getUser();
+
+      if (user) {
+        await prisma.$transaction(async (tx) => {
+          const order = await tx.salesOrder.findUnique({
             where: { id: orderId },
-            data: {
-              paymentStatus: 'paid',
-              fulfillmentStatus: 'pending',
-            },
+            include: { orderLines: true },
           });
 
-          // Deduct product stock
-          for (const line of order.orderLines) {
-            await tx.product.update({
-              where: { id: line.productId },
+          if (order && order.customerId === user.id && order.paymentStatus === 'pending') {
+            // Mark order as paid (sandbox fallback only)
+            await tx.salesOrder.update({
+              where: { id: orderId },
               data: {
-                qtyOnHand: {
-                  decrement: line.quantityOrdered,
-                },
+                paymentStatus: 'paid',
+                fulfillmentStatus: 'pending',
               },
             });
-          }
 
-          // Trigger email receipt
-          sendOrderReceivedEmail(orderId).catch((err) =>
-            console.error('Failed to send order received email:', err)
-          );
+            // Deduct product stock
+            for (const line of order.orderLines) {
+              await tx.product.update({
+                where: { id: line.productId },
+                data: {
+                  qtyOnHand: {
+                    decrement: line.quantityOrdered,
+                  },
+                },
+              });
+            }
 
-          // Automatically attempt QuickBooks sync in background if QuickBooks is connected
-          isQbConnected()
-            .then((connected) => {
-              if (connected) {
-                return syncOrderToQuickBooks(orderId);
-              }
-            })
-            .catch((err) =>
-              console.error('[AutoSync] Background QB sync failed for order:', orderId, err)
+            // Trigger email receipt
+            sendOrderReceivedEmail(orderId).catch((err) =>
+              console.error('Failed to send order received email:', err)
             );
-        }
-      });
+          }
+        });
+      }
     } catch (err) {
-      console.error('[CheckoutSuccess] Error completing order payment status:', err);
+      console.error('[CheckoutSuccess] Error completing sandbox order payment status:', err);
     }
   }
 
